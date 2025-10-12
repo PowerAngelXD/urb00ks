@@ -16,9 +16,9 @@ func GetBookInfo() gin.HandlerFunc {
 			book, err := service.GetBook(&model.Lib, title)
 			if err != nil {
 				log.Println(err.Error())
-				c.JSON(http.StatusNotAcceptable, ErrorStruct)
+				c.JSON(http.StatusNotAcceptable, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 0})
 			} else {
-				c.JSON(http.StatusOK, book)
+				c.JSON(http.StatusOK, ReturnStruct[model.BookInfo]{Status: http.StatusOK, Msg: "Get bookinfo successfully", Data: book})
 			}
 		}
 	}
