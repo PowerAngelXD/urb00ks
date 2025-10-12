@@ -9,6 +9,8 @@ import (
 )
 
 func main() {
+	model.Lib.Init() // 初始化书库
+
 	a := model.BookInfo{Id: 1234, Title: "hello", Author: "Me", Rating: 7, CoverUrl: "http"}
 
 	fmt.Println(a.ToString())
