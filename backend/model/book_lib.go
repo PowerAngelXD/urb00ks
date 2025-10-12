@@ -16,7 +16,7 @@ func (lib *B0Lib) PrintAllBooks() {
 	}
 }
 
-func (lib *B0Lib) init() {
+func (lib *B0Lib) Init() {
 	lib.Books = make(map[string]BookInfo)
 	lib.Users = make(map[string]UserInfo)
 	lib.Recommends = make(map[string]BookInfo)
