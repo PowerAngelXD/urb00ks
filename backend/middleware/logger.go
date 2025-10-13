@@ -21,3 +21,8 @@ func DBLog(content string) {
 	t := time.Now()
 	fmt.Println("[DataBase] [" + t.Format(formatTemplate) + "] " + content)
 }
+
+func TestLog(content string) {
+	t := time.Now()
+	fmt.Println("[Test] [" + t.Format(formatTemplate) + "] " + content)
+}
