@@ -64,6 +64,8 @@ func (ls *libService) AddBookByInstance(book model.BookInfo) error {
 		return errors.New("library error: an existed book is already in the library")
 	}
 
+	ls.LibObject.Books[book.Title] = book
+
 	return nil
 }
 
