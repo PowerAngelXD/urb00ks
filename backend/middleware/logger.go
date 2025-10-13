@@ -16,3 +16,8 @@ func LibraryLog(content string) {
 	t := time.Now()
 	fmt.Println("[Library] [" + t.Format(formatTemplate) + "] " + content)
 }
+
+func DBLog(content string) {
+	t := time.Now()
+	fmt.Println("[DataBase] [" + t.Format(formatTemplate) + "] " + content)
+}
