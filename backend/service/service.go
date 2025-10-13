@@ -20,6 +20,6 @@ func init() {
 	Service.LibSv.LibObject = &model.Lib
 	middleware.ServiceLog("Linking the library object to the libService... Done")
 	Service.UserSv.LibObject = &model.Lib
-	middleware.ServiceLog("[Service] Linking the library object to the UserService... Done")
+	middleware.ServiceLog("Linking the library object to the UserService... Done")
 	middleware.ServiceLog("Service Initialization Done!")
 }
