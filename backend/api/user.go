@@ -14,8 +14,8 @@ import (
 func GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		name := c.Param("name")
-		if service.IsBookExist(&model.Lib, name) {
-			user, err := service.GetUser(&model.Lib, name)
+		if service.Service.UserSv.IsUserExist(name) {
+			user, err := service.Service.UserSv.GetUser(name)
 			if err != nil {
 				log.Println(err.Error())
 				c.JSON(http.StatusNotAcceptable, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 0})
@@ -34,7 +34,7 @@ func RegisterNewUser() gin.HandlerFunc {
 		birth := c.Query("birth")
 		pswd := c.Query("pswd")
 
-		service.AddUser(&model.Lib, name, birth, pswd) // TODO: 之后考虑加密解密的事情
+		service.Service.UserSv.AddUser(name, birth, pswd) // TODO: 之后考虑加密解密的事情
 		c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Register successfully", Data: 0})
 	}
 }

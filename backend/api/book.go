@@ -12,8 +12,8 @@ import (
 func GetBookInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		title := c.Param("title")
-		if service.IsUserExist(&model.Lib, title) {
-			book, err := service.GetBook(&model.Lib, title)
+		if service.Service.LibSv.IsBookExist(title) {
+			book, err := service.Service.LibSv.GetBook(title)
 			if err != nil {
 				log.Println(err.Error())
 				c.JSON(http.StatusNotAcceptable, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 0})
