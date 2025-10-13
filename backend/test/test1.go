@@ -1,9 +1,9 @@
 package test
 
 import (
+	"B00k/middleware"
 	"B00k/model"
 	"B00k/service"
-	"fmt"
 )
 
 func Test1() {
@@ -12,8 +12,8 @@ func Test1() {
 
 	if service.Service.LibSv.IsBookExist("hello") {
 		book, _ := service.Service.LibSv.GetBook("hello")
-		fmt.Println("[Test] book 'hello' is existed, Author: " + book.Author)
+		middleware.TestLog("book 'hello' is existed, Author: " + book.Author)
 	} else {
-		fmt.Println("[Test] book 'hello' is not existed")
+		middleware.TestLog("book 'hello' is not existed")
 	}
 }

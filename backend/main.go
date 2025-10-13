@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	test.Test1()
+	test.TestDB()
 
 	r := gin.Default()
 
