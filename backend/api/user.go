@@ -14,7 +14,7 @@ import (
 func GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		name := c.Param("name")
-		if service.Service.UserSv.IsUserExist(name) {
+		if service.Service.UserSv.IsUserExistByName(name) {
 			user, err := service.Service.UserSv.GetUser(name)
 			if err != nil {
 				log.Println(err.Error())

@@ -12,7 +12,7 @@ import (
 func GetBookInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		title := c.Param("title")
-		if service.Service.LibSv.IsBookExist(title) {
+		if service.Service.LibSv.IsBookExistByTitle(title) {
 			book, err := service.Service.LibSv.GetBook(title)
 			if err != nil {
 				log.Println(err.Error())
