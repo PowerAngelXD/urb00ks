@@ -7,14 +7,16 @@ import (
 )
 
 type iUserInterface interface {
-	IsUserExist(target string)
-	GetUser(target string)
-	GetUserById(target int)
-	AddUser(name string, birth string, password string)
-	AddFav(target string, title string)
-	DeleteFav(target_user string, target_book string)
-	UpdatePassword(target string, pswd string)
-	UpdateName(target string, name string)
+	IsUserExist(target int64) bool
+	IsUserExistByName(target string) bool
+	GetUser(target string) (model.UserInfo, error)
+	GetUserById(target int64) (model.UserInfo, error)
+	AddUser(name string, birth string, password string) error
+	AddUserByInstance(user model.UserInfo) error
+	AddFav(target int64, title string) error
+	DeleteFav(target_user string, target_book string) error
+	UpdatePassword(target int64, pswd string) error
+	UpdateName(target int64, name string) error
 }
 
 type userService struct {
@@ -22,40 +24,64 @@ type userService struct {
 }
 
 // 查找某个用户是否存在
-func (us *userService) IsUserExist(target string) bool {
+func (us *userService) IsUserExist(target int64) bool {
 	_, ok := us.LibObject.Users[target]
 	return ok
 }
 
+func (ls *userService) IsUserExistByName(target string) bool {
+	for _, book := range ls.LibObject.Users {
+		if book.Name == target {
+			return true
+		}
+	}
+	return false
+}
+
 // 获得一个UserInfo
 func (us *userService) GetUser(target string) (model.UserInfo, error) {
-	if us.IsUserExist(target) {
-		return us.LibObject.Users[target], nil
+	if us.IsUserExistByName(target) {
+		for _, user := range us.LibObject.Users {
+			if user.Name == target {
+				return user, nil
+			}
+		}
+		return model.UserInfo{}, errors.New("library error: try to get a unknown user")
 	} else {
-		return model.UserInfo{Name: "[NIL]"}, errors.New("library error: try to get a unknown book")
+		return model.UserInfo{}, errors.New("library error: try to get a unknown user")
 	}
 }
 
-func (us *userService) GetUserFromId(target int) (model.UserInfo, error) {
+func (us *userService) GetUserById(target int64) (model.UserInfo, error) {
 	for _, user := range us.LibObject.Users {
 		if user.Id == target {
 			return user, nil
 		}
 	}
-	return model.UserInfo{Id: -1, Name: "Unkn0wn User"}, errors.New("library error: try to get a unknown book")
+	return model.UserInfo{Id: -1, Name: "Unkn0wn User"}, errors.New("library error: try to get a unknown user")
 }
 
 // 添加一位用户
 func (us *userService) AddUser(name string, birth string, password string) error {
-	if us.IsUserExist(name) {
+	if us.IsUserExistByName(name) {
 		return errors.New("library error: an existed user is already in the library")
 	}
 
 	return nil
 }
 
+func (us *userService) AddUserByInstance(user model.UserInfo) error {
+	if us.IsUserExistByName(user.Name) {
+		return errors.New("library error: an existed user is already in the library")
+	}
+
+	us.LibObject.Users[user.Id] = user
+
+	return nil
+}
+
 // 对指定用户增加喜好书籍
-func (us *userService) AddFav(target string, book string) error {
+func (us *userService) AddFav(target int64, book string) error {
 	if !us.IsUserExist(target) {
 		return errors.New("library error: an existed user is already in the library")
 	}
@@ -68,7 +94,7 @@ func (us *userService) AddFav(target string, book string) error {
 }
 
 // 删除指定用户的喜好书籍
-func (us *userService) DeleteFav(target string, book string) error {
+func (us *userService) DeleteFav(target int64, book string) error {
 	if !us.IsUserExist(target) {
 		return errors.New("library error: try to manage an unknown user")
 	}
@@ -91,7 +117,7 @@ func (us *userService) DeleteFav(target string, book string) error {
 }
 
 // 更新用户密码
-func (us *userService) UpdatePassword(target string, pswd string) error {
+func (us *userService) UpdatePassword(target int64, pswd string) error {
 	if !us.IsUserExist(target) {
 		return errors.New("library error: try to manage an unknown user")
 	}
@@ -108,7 +134,7 @@ func (us *userService) UpdatePassword(target string, pswd string) error {
 }
 
 // 更新用户名称
-func (us *userService) UpdateName(target string, name string) error {
+func (us *userService) UpdateName(target int64, name string) error {
 	if !us.IsUserExist(target) {
 		return errors.New("library error: try to manage an unknown user")
 	}

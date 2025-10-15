@@ -8,9 +8,9 @@ import (
 type B0Lib struct {
 	LibName    string
 	LatestDate string
-	Books      map[string]BookInfo
-	Recommends map[string]BookInfo
-	Users      map[string]UserInfo
+	Books      map[int64]BookInfo
+	Recommends map[int64]BookInfo
+	Users      map[int64]UserInfo
 }
 
 func (lib *B0Lib) PrintAllBooks() {
@@ -20,9 +20,9 @@ func (lib *B0Lib) PrintAllBooks() {
 }
 
 func (lib *B0Lib) Init() {
-	lib.Books = make(map[string]BookInfo)
-	lib.Users = make(map[string]UserInfo)
-	lib.Recommends = make(map[string]BookInfo)
+	lib.Books = make(map[int64]BookInfo)
+	lib.Users = make(map[int64]UserInfo)
+	lib.Recommends = make(map[int64]BookInfo)
 
 	middleware.LibraryLog("Initialize the library's maps... Done")
 }
