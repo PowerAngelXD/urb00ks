@@ -1,9 +1,10 @@
 package service
 
 import (
+	"B00k/dao"
+	"B00k/middleware"
 	"B00k/model"
 	"errors"
-	"slices"
 )
 
 type iUserInterface interface {
@@ -12,7 +13,6 @@ type iUserInterface interface {
 	GetUser(target string) (model.UserInfo, error)
 	GetUserById(target int64) (model.UserInfo, error)
 	AddUser(name string, birth string, password string) error
-	AddUserByInstance(user model.UserInfo) error
 	AddFav(target int64, title string) error
 	DeleteFav(target_user string, target_book string) error
 	UpdatePassword(target int64, pswd string) error
@@ -20,45 +20,25 @@ type iUserInterface interface {
 }
 
 type userService struct {
-	LibObject *model.B0Lib
+	DB dao.UserDao
 }
 
 // 查找某个用户是否存在
 func (us *userService) IsUserExist(target int64) bool {
-	_, ok := us.LibObject.Users[target]
-	return ok
+	return us.DB.IsExist(target)
 }
 
-func (ls *userService) IsUserExistByName(target string) bool {
-	for _, book := range ls.LibObject.Users {
-		if book.Name == target {
-			return true
-		}
-	}
-	return false
+func (us *userService) IsUserExistByName(target string) bool {
+	return us.DB.IsExistByName(target)
 }
 
 // 获得一个UserInfo
 func (us *userService) GetUser(target string) (model.UserInfo, error) {
-	if us.IsUserExistByName(target) {
-		for _, user := range us.LibObject.Users {
-			if user.Name == target {
-				return user, nil
-			}
-		}
-		return model.UserInfo{}, errors.New("library error: try to get a unknown user")
-	} else {
-		return model.UserInfo{}, errors.New("library error: try to get a unknown user")
-	}
+	return us.DB.GetByName(target)
 }
 
 func (us *userService) GetUserById(target int64) (model.UserInfo, error) {
-	for _, user := range us.LibObject.Users {
-		if user.Id == target {
-			return user, nil
-		}
-	}
-	return model.UserInfo{Id: -1, Name: "Unkn0wn User"}, errors.New("library error: try to get a unknown user")
+	return us.DB.Get(target)
 }
 
 // 添加一位用户
@@ -67,17 +47,15 @@ func (us *userService) AddUser(name string, birth string, password string) error
 		return errors.New("library error: an existed user is already in the library")
 	}
 
-	return nil
-}
+	result := us.DB.Create(name, birth, password)
 
-func (us *userService) AddUserByInstance(user model.UserInfo) error {
-	if us.IsUserExistByName(user.Name) {
-		return errors.New("library error: an existed user is already in the library")
+	if result != nil {
+		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		middleware.ServiceLog("Successfully create a user!")
+		return nil
 	}
-
-	us.LibObject.Users[user.Id] = user
-
-	return nil
 }
 
 // 对指定用户增加喜好书籍
@@ -86,11 +64,23 @@ func (us *userService) AddFav(target int64, book string) error {
 		return errors.New("library error: an existed user is already in the library")
 	}
 
-	copy := us.LibObject.Users[target]
-	copy.Favs = append(copy.Favs, book)
-	us.LibObject.Users[target] = copy
+	user, err := us.DB.Get(target)
 
-	return nil
+	if err != nil {
+		middleware.ServiceLog("library error: occurred some problem, details: " + err.Error())
+		return err
+	} else {
+		user.Favs = append(user.Favs, book)
+		result := us.DB.UpdateAll(target, user.Name, user.Password, user.Favs)
+
+		if result != nil {
+			middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+			return err
+		}
+
+		middleware.ServiceLog("Successfully create a user!")
+		return nil
+	}
 }
 
 // 删除指定用户的喜好书籍
@@ -99,21 +89,29 @@ func (us *userService) DeleteFav(target int64, book string) error {
 		return errors.New("library error: try to manage an unknown user")
 	}
 
-	tmp_user := us.LibObject.Users[target]
-	if slices.Contains(tmp_user.Favs, book) {
-		favs := make([]string, len(tmp_user.Favs)-1)
-		for _, name := range tmp_user.Favs {
-			if name != book {
-				favs = append(favs, name)
+	user, err := us.DB.Get(target)
+
+	if err != nil {
+		middleware.ServiceLog("library error: occurred some problem, details: " + err.Error())
+		return err
+	} else {
+		new_favs := make([]string, len(user.Favs))
+		for _, fav := range user.Favs {
+			if fav != book {
+				new_favs = append(new_favs, fav)
 			}
 		}
-		tmp_user.Favs = favs
-		us.LibObject.Users[target] = tmp_user
 
+		result := us.DB.UpdateAll(target, user.Name, user.Password, new_favs)
+
+		if result != nil {
+			middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+			return err
+		}
+
+		middleware.ServiceLog("Successfully create a user!")
 		return nil
 	}
-
-	return errors.New("library error: try to delete a unknown favorite book")
 }
 
 // 更新用户密码
@@ -122,15 +120,15 @@ func (us *userService) UpdatePassword(target int64, pswd string) error {
 		return errors.New("library error: try to manage an unknown user")
 	}
 
-	tmp_user := us.LibObject.Users[target]
+	result := us.DB.UpdatePassword(target, pswd)
 
-	if tmp_user.Password == pswd {
-		return errors.New("library error: try to update a same password")
+	if result != nil {
+		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		middleware.ServiceLog("Successfully update a user!")
+		return nil
 	}
-
-	tmp_user.Password = pswd
-	us.LibObject.Users[target] = tmp_user
-	return nil
 }
 
 // 更新用户名称
@@ -139,13 +137,13 @@ func (us *userService) UpdateName(target int64, name string) error {
 		return errors.New("library error: try to manage an unknown user")
 	}
 
-	tmp_user := us.LibObject.Users[target]
+	result := us.DB.UpdateName(target, name)
 
-	if tmp_user.Name == name {
-		return errors.New("library error: try to update a same password")
+	if result != nil {
+		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		middleware.ServiceLog("Successfully update a user!")
+		return nil
 	}
-
-	tmp_user.Name = name
-	us.LibObject.Users[target] = tmp_user
-	return nil
 }
