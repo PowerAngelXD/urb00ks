@@ -16,6 +16,7 @@ func init() {
 
 	if err != nil {
 		logger.DBLog("Connect the database failed, details: " + err.Error())
+		panic("Connect the database failed, program stop...")
 	}
 
 	DB, err := db.DB()
