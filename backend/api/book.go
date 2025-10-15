@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GET
+// 获取用户信息
 func GetBookInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id_str := c.Param("id")
