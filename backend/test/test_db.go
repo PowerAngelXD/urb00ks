@@ -7,7 +7,7 @@ import (
 )
 
 func TestDB() {
-	book := model.BookInfo{Title: "hello", Author: "Me", Rating: 7, CoverUrl: "http"}
+	book := model.BookInfo{Title: "hello", Author: "Me", Rating: 7, ImageUrl: "http"}
 	dao.OfficialDB.Create(&book)
 	user := model.UserInfo{Name: "Liuj", Birth: "2020-03-04", Password: "hello-world"}
 	dao.OfficialDB.Create(&user)

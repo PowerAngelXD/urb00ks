@@ -16,7 +16,7 @@ type iUserDao interface {
 	IsExistByName(target string) bool
 	IsExist(target int64) bool
 	Create(name string, birth string, pswd string) error
-	UpdateAll(target int64, name string, pswd string) error
+	UpdateAll(target int64, name string, pswd string, favs []string) error
 	UpdateName(target int64, name string) error
 	UpdatePassword(target int64, pswd string) error
 	AddFav(target int64, fav string) error
@@ -81,7 +81,7 @@ func (ud *UserDao) Create(name string, birth string, pswd string) error {
 	}
 }
 
-func (ud *UserDao) UpdateAll(target int64, name string, pswd string) error {
+func (ud *UserDao) UpdateAll(target int64, name string, pswd string, favs []string) error {
 	if !ud.IsExist(target) {
 		middleware.DBLog("Occurred error: Cannot update an unknown user")
 		return errors.New("cannot update an unknown user")
@@ -92,6 +92,7 @@ func (ud *UserDao) UpdateAll(target int64, name string, pswd string) error {
 	result := ud.db.Model(&user).Updates(map[string]any{
 		"name":     name,
 		"password": pswd,
+		"favs":     favs,
 	})
 
 	if result.Error != nil {
