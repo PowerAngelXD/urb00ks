@@ -2,7 +2,7 @@ package service
 
 import (
 	"B00k/dao"
-	"B00k/middleware"
+	"B00k/logger"
 	"B00k/model"
 	"errors"
 	"strconv"
@@ -66,11 +66,11 @@ func (ls *libService) AddRecommend(target int64, author string) error {
 	book, err := ls.DB.Get(target)
 
 	if err != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + err.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + err.Error())
 		return err
 	} else {
 		ls.Recommends = append(ls.Recommends, book)
-		middleware.ServiceLog("Successfully add a recommend!")
+		logger.ServiceLog("Successfully add a recommend!")
 		return nil
 	}
 }
@@ -84,7 +84,7 @@ func (ls *libService) DeleteRecommend(target int64) error {
 	_, err := ls.DB.Get(target)
 
 	if err != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + err.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + err.Error())
 		return err
 	} else {
 		recommends := make([]model.BookInfo, len(ls.Recommends))
@@ -94,7 +94,7 @@ func (ls *libService) DeleteRecommend(target int64) error {
 			}
 		}
 		ls.Recommends = recommends
-		middleware.ServiceLog("Successfully delete a recommend!")
+		logger.ServiceLog("Successfully delete a recommend!")
 		return nil
 	}
 }
@@ -108,10 +108,10 @@ func (ls *libService) UpdateBook(target int64, title string, author string, cvru
 	result := ls.DB.UpdateAll(target, title, author, rating, views)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a book!")
+		logger.ServiceLog("Successfully update a book!")
 		return nil
 	}
 }
@@ -124,10 +124,10 @@ func (ls *libService) UpdateCoverage(target int64, cvrurl string) error {
 	result := ls.DB.UpdateUrl(target, cvrurl)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a book!")
+		logger.ServiceLog("Successfully update a book!")
 		return nil
 	}
 }
@@ -140,10 +140,10 @@ func (ls *libService) UpdateRating(target int64, rt int) error {
 	result := ls.DB.UpdateRating(target, rt)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a book!")
+		logger.ServiceLog("Successfully update a book!")
 		return nil
 	}
 }
@@ -156,10 +156,10 @@ func (ls *libService) UpdateTitle(target int64, title string) error {
 	result := ls.DB.UpdateTitle(target, title)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a book!")
+		logger.ServiceLog("Successfully update a book!")
 		return nil
 	}
 }
@@ -172,10 +172,10 @@ func (ls *libService) UpdateAuthor(target int64, author string) error {
 	result := ls.DB.UpdateAuthor(target, author)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a book!")
+		logger.ServiceLog("Successfully update a book!")
 		return nil
 	}
 }

@@ -2,7 +2,7 @@ package service
 
 import (
 	"B00k/dao"
-	"B00k/middleware"
+	"B00k/logger"
 	"B00k/model"
 	"errors"
 )
@@ -50,10 +50,10 @@ func (us *userService) AddUser(name string, birth string, password string) error
 	result := us.DB.Create(name, birth, password)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully create a user!")
+		logger.ServiceLog("Successfully create a user!")
 		return nil
 	}
 }
@@ -67,18 +67,18 @@ func (us *userService) AddFav(target int64, book string) error {
 	user, err := us.DB.Get(target)
 
 	if err != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + err.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + err.Error())
 		return err
 	} else {
 		user.Favs = append(user.Favs, book)
 		result := us.DB.UpdateAll(target, user.Name, user.Password, user.Favs)
 
 		if result != nil {
-			middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+			logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 			return err
 		}
 
-		middleware.ServiceLog("Successfully create a user!")
+		logger.ServiceLog("Successfully create a user!")
 		return nil
 	}
 }
@@ -92,7 +92,7 @@ func (us *userService) DeleteFav(target int64, book string) error {
 	user, err := us.DB.Get(target)
 
 	if err != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + err.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + err.Error())
 		return err
 	} else {
 		new_favs := make([]string, len(user.Favs))
@@ -105,11 +105,11 @@ func (us *userService) DeleteFav(target int64, book string) error {
 		result := us.DB.UpdateAll(target, user.Name, user.Password, new_favs)
 
 		if result != nil {
-			middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+			logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 			return err
 		}
 
-		middleware.ServiceLog("Successfully create a user!")
+		logger.ServiceLog("Successfully create a user!")
 		return nil
 	}
 }
@@ -123,10 +123,10 @@ func (us *userService) UpdatePassword(target int64, pswd string) error {
 	result := us.DB.UpdatePassword(target, pswd)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a user!")
+		logger.ServiceLog("Successfully update a user!")
 		return nil
 	}
 }
@@ -140,10 +140,10 @@ func (us *userService) UpdateName(target int64, name string) error {
 	result := us.DB.UpdateName(target, name)
 
 	if result != nil {
-		middleware.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
 		return result
 	} else {
-		middleware.ServiceLog("Successfully update a user!")
+		logger.ServiceLog("Successfully update a user!")
 		return nil
 	}
 }

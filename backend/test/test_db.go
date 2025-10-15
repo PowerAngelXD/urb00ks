@@ -2,7 +2,7 @@ package test
 
 import (
 	"B00k/dao"
-	"B00k/middleware"
+	"B00k/logger"
 	"B00k/model"
 )
 
@@ -11,5 +11,5 @@ func TestDB() {
 	dao.OfficialDB.Create(&book)
 	user := model.UserInfo{Name: "Liuj", Birth: "2020-03-04", Password: "hello-world"}
 	dao.OfficialDB.Create(&user)
-	middleware.TestLog("Create bookinfo done!")
+	logger.TestLog("Create bookinfo done!")
 }

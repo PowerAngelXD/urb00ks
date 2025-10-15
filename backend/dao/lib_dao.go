@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"B00k/middleware"
+	"B00k/logger"
 	"B00k/model"
 	"errors"
 	"strconv"
@@ -35,17 +35,17 @@ func (ld *LibDao) Count() (int64, error) {
 	result := ld.db.Model(&model.BookInfo{}).Count(&max)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot get the count of 'book_list', details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot get the count of 'book_list', details: " + result.Error.Error())
 		return -1, result.Error
 	} else {
-		middleware.DBLog("Operation: successfully get the count in the table: 'book_list'")
+		logger.DBLog("Operation: successfully get the count in the table: 'book_list'")
 		return max, nil
 	}
 }
 
 func (ld *LibDao) Link(target_db *gorm.DB) {
 	ld.db = target_db
-	middleware.DBLog("Lib: Database linked done!")
+	logger.DBLog("Lib: Database linked done!")
 }
 
 func (ld *LibDao) IsExistByTitle(target string) bool {
@@ -73,17 +73,17 @@ func (ld *LibDao) Create(title string, author string, url string) error {
 	result := ld.db.Create(model.BookInfo{Title: title, Author: author, ImageUrl: url})
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot create the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot create the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: create an book... Done")
+		logger.DBLog("Operation: create an book... Done")
 		return nil
 	}
 }
 
 func (ld *LibDao) UpdateAll(target int64, title string, author string, rating int, views int) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
 	}
 
@@ -97,17 +97,17 @@ func (ld *LibDao) UpdateAll(target int64, title string, author string, rating in
 	})
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] all the fields")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] all the fields")
 		return nil
 	}
 }
 
 func (ld *LibDao) UpdateTitle(target int64, title string) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
 	}
 
@@ -116,17 +116,17 @@ func (ld *LibDao) UpdateTitle(target int64, title string) error {
 	result := ld.db.Model(&book).Update("title", title)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Title")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Title")
 		return nil
 	}
 }
 
 func (ld *LibDao) UpdateAuthor(target int64, author string) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
 	}
 
@@ -135,17 +135,17 @@ func (ld *LibDao) UpdateAuthor(target int64, author string) error {
 	result := ld.db.Model(&book).Update("author", author)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Author")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Author")
 		return nil
 	}
 }
 
 func (ld *LibDao) UpdateRating(target int64, rt int) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
 	}
 
@@ -154,17 +154,17 @@ func (ld *LibDao) UpdateRating(target int64, rt int) error {
 	result := ld.db.Model(&book).Update("rating", rt)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Rating")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Rating")
 		return nil
 	}
 }
 
 func (ld *LibDao) UpdateViews(target int64, views int) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
 	}
 
@@ -173,17 +173,17 @@ func (ld *LibDao) UpdateViews(target int64, views int) error {
 	result := ld.db.Model(&book).Update("views", views)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Title")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Title")
 		return nil
 	}
 }
 
 func (ld *LibDao) UpdateUrl(target int64, url string) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
 	}
 
@@ -192,17 +192,17 @@ func (ld *LibDao) UpdateUrl(target int64, url string) error {
 	result := ld.db.Model(&book).Update("image_url", url)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: ImageUrl")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: ImageUrl")
 		return nil
 	}
 }
 
 func (ld *LibDao) Get(target int64) (model.BookInfo, error) {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return model.BookInfo{}, errors.New("cannot get a unknown book")
 	}
 
@@ -210,17 +210,17 @@ func (ld *LibDao) Get(target int64) (model.BookInfo, error) {
 	result := ld.db.First(&book, target)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
 		return model.BookInfo{}, result.Error
 	} else {
-		middleware.DBLog("Operation: successfully get the book: [" + strconv.FormatInt(target, 10) + "]")
+		logger.DBLog("Operation: successfully get the book: [" + strconv.FormatInt(target, 10) + "]")
 		return book, nil
 	}
 }
 
 func (ld *LibDao) GetByTitle(target string) (model.BookInfo, error) {
 	if !ld.IsExistByTitle(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return model.BookInfo{}, errors.New("cannot get a unknown book")
 	}
 
@@ -228,27 +228,27 @@ func (ld *LibDao) GetByTitle(target string) (model.BookInfo, error) {
 	result := ld.db.Where("title = ?", target).First(&book)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
 		return model.BookInfo{}, result.Error
 	} else {
-		middleware.DBLog("Operation: successfully get the book: [" + target + "]")
+		logger.DBLog("Operation: successfully get the book: [" + target + "]")
 		return book, nil
 	}
 }
 
 func (ld *LibDao) Delete(target int64) error {
 	if !ld.IsExist(target) {
-		middleware.DBLog("Occurred error: Cannot update a unknown book")
+		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot delete a unknown book")
 	}
 
 	result := ld.db.Delete(&model.BookInfo{}, target)
 
 	if result.Error != nil {
-		middleware.DBLog("Occurred error: Cannot delete the book instance, details: " + result.Error.Error())
+		logger.DBLog("Occurred error: Cannot delete the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		middleware.DBLog("Operation: successfully delete the book: [" + strconv.FormatInt(target, 10) + "]")
+		logger.DBLog("Operation: successfully delete the book: [" + strconv.FormatInt(target, 10) + "]")
 		return nil
 	}
 }
