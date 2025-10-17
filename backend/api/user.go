@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,12 +21,12 @@ func GetUserInfo() gin.HandlerFunc {
 			user, err := service.Service.UserSv.GetUserById(id)
 			if err != nil {
 				log.Println(err.Error())
-				c.JSON(http.StatusNotAcceptable, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
 			} else {
 				c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
 			}
 		} else {
-			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Cannot delete an unknown user", Data: 1})
+			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot delete an unknown user", Data: 1})
 		}
 	}
 }
@@ -41,7 +42,7 @@ func RegisterNewUser() gin.HandlerFunc {
 		result := service.Service.UserSv.AddUser(name, birth, pswd) // TODO: 之后考虑加密解密的事情
 
 		if result != nil {
-			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Register user failed, details: " + result.Error(), Data: 1})
+			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Register user failed, details: " + result.Error(), Data: 1})
 		} else {
 			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Register successfully", Data: 0})
 		}
@@ -57,15 +58,66 @@ func DeleteUser() gin.HandlerFunc {
 		if service.Service.UserSv.IsUserExist(id) {
 			result := service.Service.UserSv.DB.Delete(id)
 			if result != nil {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Delete user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Delete user failed, details: " + result.Error(), Data: 1})
 			} else {
 				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Delete user successfully", Data: 0})
 			}
 		} else {
-			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusNotAcceptable, Msg: "Cannot delete an unknown user", Data: 1})
+			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot delete an unknown user", Data: 1})
 		}
 	}
 }
 
 // PATCH
 // 更新用户特定信息
+func UpdateUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		target_id_str := c.Query("target")
+		type_str := c.Query("type")
+		content := c.Query("content")
+		id, _ := strconv.ParseInt(target_id_str, 10, 64)
+
+		switch type_str {
+		case "update_name":
+			result := service.Service.UserSv.UpdateName(id, content)
+			if result != nil {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update user", Data: 0})
+			}
+		case "update_pswd":
+			result := service.Service.UserSv.UpdatePassword(id, content)
+			if result != nil {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update user", Data: 0})
+			}
+		case "add_fav":
+			result := service.Service.UserSv.AddFav(id, content)
+			if result != nil {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update user", Data: 0})
+			}
+		case "delete_fav":
+			result := service.Service.UserSv.DeleteFav(id, content)
+			if result != nil {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update user", Data: 0})
+			}
+		case "update_all":
+			// e.g. /user/update?target=1&type=update_all&Xiaoming;123456;book1,book2,book3
+			fields := strings.Split(content, ";")
+			favs := strings.Split(fields[2], ",")
+
+			result := service.Service.UserSv.UpdateAll(id, fields[0], fields[1], favs)
+
+			if result != nil {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update user", Data: 0})
+			}
+		}
+	}
+}

@@ -13,10 +13,12 @@ type iUserInterface interface {
 	GetUser(target string) (model.UserInfo, error)
 	GetUserById(target int64) (model.UserInfo, error)
 	AddUser(name string, birth string, password string) error
+	DeleteUser(target int64) error
 	AddFav(target int64, title string) error
 	DeleteFav(target_user string, target_book string) error
 	UpdatePassword(target int64, pswd string) error
 	UpdateName(target int64, name string) error
+	UpdateAll(target int64, name string, pswd string, favs []string) error
 }
 
 type userService struct {
@@ -54,6 +56,23 @@ func (us *userService) AddUser(name string, birth string, password string) error
 		return result
 	} else {
 		logger.ServiceLog("Successfully create a user!")
+		return nil
+	}
+}
+
+// 删除用户
+func (us *userService) DeleteUser(target int64) error {
+	if !us.IsUserExist(target) {
+		return errors.New("library error: try to delete a unknown user in the library")
+	}
+
+	result := us.DB.Delete(target)
+
+	if result != nil {
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		logger.ServiceLog("Successfully delete a user!")
 		return nil
 	}
 }
@@ -138,6 +157,23 @@ func (us *userService) UpdateName(target int64, name string) error {
 	}
 
 	result := us.DB.UpdateName(target, name)
+
+	if result != nil {
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		logger.ServiceLog("Successfully update a user!")
+		return nil
+	}
+}
+
+// 更新用户几乎所有字段
+func (us *userService) UpdateAll(target int64, name string, pswd string, favs []string) error {
+	if !us.IsUserExist(target) {
+		return errors.New("library error: try to manage an unknown user")
+	}
+
+	result := us.DB.UpdateAll(target, name, pswd, favs)
 
 	if result != nil {
 		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())

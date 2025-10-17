@@ -1,6 +1,7 @@
 package service
 
 import (
+	"B00k/dao"
 	"B00k/logger"
 
 	"gorm.io/gorm"
@@ -16,6 +17,8 @@ type B00kService struct {
 var Service B00kService
 
 func (service *B00kService) Init() {
+	service.db = dao.OfficialDB
+
 	logger.ServiceLog("Initializing the service...")
 	Service.LibSv.DB.Link(service.db)
 	logger.ServiceLog("LibService: Connect to the database... Done!")

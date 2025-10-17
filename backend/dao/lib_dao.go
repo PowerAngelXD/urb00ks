@@ -81,7 +81,7 @@ func (ld *LibDao) Create(title string, author string, url string) error {
 	}
 }
 
-func (ld *LibDao) UpdateAll(target int64, title string, author string, rating int, views int) error {
+func (ld *LibDao) UpdateAll(target int64, title string, url string, author string, rating int, views int) error {
 	if !ld.IsExist(target) {
 		logger.DBLog("Occurred error: Cannot update a unknown book")
 		return errors.New("cannot update a unknown book")
@@ -90,10 +90,11 @@ func (ld *LibDao) UpdateAll(target int64, title string, author string, rating in
 	var book model.BookInfo
 	book.Id = target
 	result := ld.db.Model(&book).Updates(map[string]any{
-		"title":  title,
-		"author": author,
-		"rating": rating,
-		"views":  views,
+		"title":     title,
+		"author":    author,
+		"rating":    rating,
+		"views":     views,
+		"image_url": url,
 	})
 
 	if result.Error != nil {

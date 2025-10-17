@@ -13,15 +13,17 @@ type ilibService interface {
 	IsBookExistByTitle(target string) bool
 	GetBook(target string) (model.BookInfo, error)
 	GetBookById(target int64) (model.BookInfo, error)
-	AddBook(name string, author string) error
+	AddBook(name string, author string, url string) error
 	DeleteBook(target int64) error
 	AddRecommend(title string, author string) error
 	DeleteRecommend(title string) error
 	UpdateBook(target int64, title string, author string, cvrurl string, rt int, views int) error
-	UpdateCoverage(cvrurl string) error
-	UpdateRating(rt int) error
-	UpdateTitle(title string) error
-	UpdateAuthor(author string) error
+	UpdateCoverage(target int64, cvrurl string) error
+	UpdateRating(target int64, rt int) error
+	UpdateTitle(target int64, title string) error
+	UpdateAuthor(target int64, author string) error
+	UpdateUrl(target int64, url string)
+	UpdateAll(target int64, title string, author string, rt int, views int, url string) error
 }
 
 type libService struct {
@@ -48,8 +50,8 @@ func (ls *libService) GetBookById(target int64) (model.BookInfo, error) {
 }
 
 // 增加库中书本
-func (ls *libService) AddBook(title string, author string) error {
-	return ls.DB.Create(title, author, "/img/Book.png")
+func (ls *libService) AddBook(title string, author string, url string) error {
+	return ls.DB.Create(title, author, url)
 }
 
 // 删除库中书本
@@ -100,22 +102,6 @@ func (ls *libService) DeleteRecommend(target int64) error {
 }
 
 // 更新书籍状态
-func (ls *libService) UpdateBook(target int64, title string, author string, cvrurl string, rating int, views int) error {
-	if !ls.IsBookExist(target) {
-		return errors.New("library error: want to update an unknown recommended book: \"" + strconv.FormatInt(target, 10) + "\"")
-	}
-
-	result := ls.DB.UpdateAll(target, title, author, rating, views)
-
-	if result != nil {
-		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
-		return result
-	} else {
-		logger.ServiceLog("Successfully update a book!")
-		return nil
-	}
-}
-
 func (ls *libService) UpdateCoverage(target int64, cvrurl string) error {
 	if !ls.IsBookExist(target) {
 		return errors.New("library error: want to update an unknown recommended book: \"" + strconv.FormatInt(target, 10) + "\"")
@@ -170,6 +156,38 @@ func (ls *libService) UpdateAuthor(target int64, author string) error {
 	}
 
 	result := ls.DB.UpdateAuthor(target, author)
+
+	if result != nil {
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		logger.ServiceLog("Successfully update a book!")
+		return nil
+	}
+}
+
+func (ls *libService) UpdateUrl(target int64, url string) error {
+	if !ls.IsBookExist(target) {
+		return errors.New("library error: want to update an unknown recommended book: \"" + strconv.FormatInt(target, 10) + "\"")
+	}
+
+	result := ls.DB.UpdateUrl(target, url)
+
+	if result != nil {
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		logger.ServiceLog("Successfully update a book!")
+		return nil
+	}
+}
+
+func (ls *libService) UpdateAll(target int64, title string, author string, rt int, views int, url string) error {
+	if !ls.IsBookExist(target) {
+		return errors.New("library error: want to update an unknown recommended book: \"" + strconv.FormatInt(target, 10) + "\"")
+	}
+
+	result := ls.DB.UpdateAll(target, title, author, url, rt, views)
 
 	if result != nil {
 		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
