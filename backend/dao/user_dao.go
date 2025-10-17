@@ -27,12 +27,12 @@ type iUserDao interface {
 }
 
 type UserDao struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func (ld *UserDao) Count() (int64, error) {
 	var max int64
-	result := ld.db.Model(&model.UserInfo{}).Count(&max)
+	result := ld.DB.Model(&model.UserInfo{}).Count(&max)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot get the count of 'user_list', details: " + result.Error.Error())
@@ -44,13 +44,13 @@ func (ld *UserDao) Count() (int64, error) {
 }
 
 func (ld *UserDao) Link(target_db *gorm.DB) {
-	ld.db = target_db
+	ld.DB = target_db
 	logger.DBLog("User: Database linked done!")
 }
 
 func (ud *UserDao) IsExistByName(target string) bool {
 	var user model.UserInfo
-	result := ud.db.Where("name = ?", target).First(&user)
+	result := ud.DB.Where("name = ?", target).First(&user)
 
 	if result.Error != nil {
 		return false
@@ -61,7 +61,7 @@ func (ud *UserDao) IsExistByName(target string) bool {
 
 func (ud *UserDao) IsExist(target int64) bool {
 	var user model.UserInfo
-	result := ud.db.First(&user, target)
+	result := ud.DB.First(&user, target)
 	if result.Error != nil {
 		return false
 	} else {
@@ -70,7 +70,7 @@ func (ud *UserDao) IsExist(target int64) bool {
 }
 
 func (ud *UserDao) Create(name string, birth string, pswd string) error {
-	result := ud.db.Create(model.UserInfo{Name: name, Birth: birth, Password: pswd})
+	result := ud.DB.Create(&model.UserInfo{Name: name, Birth: birth, Password: pswd})
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot create the user instance, details: " + result.Error.Error())
@@ -89,7 +89,7 @@ func (ud *UserDao) UpdateAll(target int64, name string, pswd string, favs []stri
 
 	var user model.UserInfo
 	user.Id = target
-	result := ud.db.Model(&user).Updates(map[string]any{
+	result := ud.DB.Model(&user).Updates(map[string]any{
 		"name":     name,
 		"password": pswd,
 		"favs":     favs,
@@ -112,7 +112,7 @@ func (ud *UserDao) UpdateName(target int64, name string) error {
 
 	var user model.UserInfo
 	user.Id = target
-	result := ud.db.Model(&user).Update("name", name)
+	result := ud.DB.Model(&user).Update("name", name)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: In operation UpdateName " + result.Error.Error())
@@ -131,7 +131,7 @@ func (ud *UserDao) UpdatePassword(target int64, pswd string) error {
 
 	var user model.UserInfo
 	user.Id = target
-	result := ud.db.Model(&user).Update("password", pswd)
+	result := ud.DB.Model(&user).Update("password", pswd)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: In operation UpdatePassword " + result.Error.Error())
@@ -150,7 +150,7 @@ func (ud *UserDao) AddFav(target int64, fav string) error {
 
 	var user model.UserInfo
 	user.Id = target
-	ud.db.First(&user, target)
+	ud.DB.First(&user, target)
 
 	if slices.Contains(user.Favs, fav) {
 		logger.DBLog("Occurred error: Cannot add a new favorite for the user")
@@ -158,7 +158,7 @@ func (ud *UserDao) AddFav(target int64, fav string) error {
 	}
 
 	user.Favs = append(user.Favs, fav)
-	result := ud.db.Model(&user).Updates(user)
+	result := ud.DB.Model(&user).Updates(user)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: In operation AddFavs " + result.Error.Error())
@@ -177,7 +177,7 @@ func (ud *UserDao) DeleteFav(target int64, fav string) error {
 
 	var user model.UserInfo
 	user.Id = target
-	ud.db.First(&user, target)
+	ud.DB.First(&user, target)
 
 	if !slices.Contains(user.Favs, fav) {
 		logger.DBLog("Occurred error: Cannot delete a unknown favorite for the user")
@@ -185,7 +185,7 @@ func (ud *UserDao) DeleteFav(target int64, fav string) error {
 	}
 
 	user.Favs = append(user.Favs, fav)
-	result := ud.db.Model(&user).Updates(user)
+	result := ud.DB.Model(&user).Updates(user)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: In operation DeleteFavs " + result.Error.Error())
@@ -203,7 +203,7 @@ func (ud *UserDao) Get(target int64) (model.UserInfo, error) {
 	}
 
 	var user model.UserInfo
-	result := ud.db.First(&user, target)
+	result := ud.DB.First(&user, target)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot get the user, detail: " + result.Error.Error())
@@ -221,7 +221,7 @@ func (ud *UserDao) GetByName(target string) (model.UserInfo, error) {
 	}
 
 	var user model.UserInfo
-	result := ud.db.Where("name = ?", target).First(&user)
+	result := ud.DB.Where("name = ?", target).First(&user)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot get the user, detail: " + result.Error.Error())
@@ -238,7 +238,7 @@ func (ud *UserDao) Delete(target int64) error {
 		return errors.New("cannot delete an unknown user")
 	}
 
-	result := ud.db.Delete(model.UserInfo{}, target)
+	result := ud.DB.Delete(model.UserInfo{}, target)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot delete the user, detail: " + result.Error.Error())

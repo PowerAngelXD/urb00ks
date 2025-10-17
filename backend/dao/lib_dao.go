@@ -27,12 +27,12 @@ type iLibDao interface {
 }
 
 type LibDao struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func (ld *LibDao) Count() (int64, error) {
 	var max int64
-	result := ld.db.Model(&model.BookInfo{}).Count(&max)
+	result := ld.DB.Model(&model.BookInfo{}).Count(&max)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot get the count of 'book_list', details: " + result.Error.Error())
@@ -44,13 +44,13 @@ func (ld *LibDao) Count() (int64, error) {
 }
 
 func (ld *LibDao) Link(target_db *gorm.DB) {
-	ld.db = target_db
-	logger.DBLog("Lib: Database linked done!")
+	ld.DB = target_db
+	logger.DBLog("Database linked done!")
 }
 
 func (ld *LibDao) IsExistByTitle(target string) bool {
 	var book model.BookInfo
-	result := ld.db.Where("title = ?", target).First(&book)
+	result := ld.DB.Where("title = ?", target).First(&book)
 
 	if result.Error != nil {
 		return false
@@ -61,7 +61,7 @@ func (ld *LibDao) IsExistByTitle(target string) bool {
 
 func (ld *LibDao) IsExist(target int64) bool {
 	var book model.BookInfo
-	result := ld.db.First(&book, target)
+	result := ld.DB.First(&book, target)
 	if result.Error != nil {
 		return false
 	} else {
@@ -70,7 +70,7 @@ func (ld *LibDao) IsExist(target int64) bool {
 }
 
 func (ld *LibDao) Create(title string, author string, url string) error {
-	result := ld.db.Create(model.BookInfo{Title: title, Author: author, ImageUrl: url})
+	result := ld.DB.Create(&model.BookInfo{Title: title, Author: author, ImageUrl: url})
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot create the book instance, details: " + result.Error.Error())
@@ -89,7 +89,7 @@ func (ld *LibDao) UpdateAll(target int64, title string, url string, author strin
 
 	var book model.BookInfo
 	book.Id = target
-	result := ld.db.Model(&book).Updates(map[string]any{
+	result := ld.DB.Model(&book).Updates(map[string]any{
 		"title":     title,
 		"author":    author,
 		"rating":    rating,
@@ -114,7 +114,7 @@ func (ld *LibDao) UpdateTitle(target int64, title string) error {
 
 	var book model.BookInfo
 	book.Id = target
-	result := ld.db.Model(&book).Update("title", title)
+	result := ld.DB.Model(&book).Update("title", title)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
@@ -133,7 +133,7 @@ func (ld *LibDao) UpdateAuthor(target int64, author string) error {
 
 	var book model.BookInfo
 	book.Id = target
-	result := ld.db.Model(&book).Update("author", author)
+	result := ld.DB.Model(&book).Update("author", author)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
@@ -152,7 +152,7 @@ func (ld *LibDao) UpdateRating(target int64, rt int) error {
 
 	var book model.BookInfo
 	book.Id = target
-	result := ld.db.Model(&book).Update("rating", rt)
+	result := ld.DB.Model(&book).Update("rating", rt)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
@@ -171,7 +171,7 @@ func (ld *LibDao) UpdateViews(target int64, views int) error {
 
 	var book model.BookInfo
 	book.Id = target
-	result := ld.db.Model(&book).Update("views", views)
+	result := ld.DB.Model(&book).Update("views", views)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
@@ -190,7 +190,7 @@ func (ld *LibDao) UpdateUrl(target int64, url string) error {
 
 	var book model.BookInfo
 	book.Id = target
-	result := ld.db.Model(&book).Update("image_url", url)
+	result := ld.DB.Model(&book).Update("image_url", url)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
@@ -208,7 +208,7 @@ func (ld *LibDao) Get(target int64) (model.BookInfo, error) {
 	}
 
 	var book model.BookInfo
-	result := ld.db.First(&book, target)
+	result := ld.DB.First(&book, target)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
@@ -226,7 +226,7 @@ func (ld *LibDao) GetByTitle(target string) (model.BookInfo, error) {
 	}
 
 	var book model.BookInfo
-	result := ld.db.Where("title = ?", target).First(&book)
+	result := ld.DB.Where("title = ?", target).First(&book)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
@@ -243,7 +243,7 @@ func (ld *LibDao) Delete(target int64) error {
 		return errors.New("cannot delete a unknown book")
 	}
 
-	result := ld.db.Delete(&model.BookInfo{}, target)
+	result := ld.DB.Delete(&model.BookInfo{}, target)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: Cannot delete the book instance, details: " + result.Error.Error())

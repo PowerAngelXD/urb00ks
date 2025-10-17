@@ -22,7 +22,7 @@ type iUserInterface interface {
 }
 
 type userService struct {
-	DB dao.UserDao
+	DB *dao.UserDao
 }
 
 // 查找某个用户是否存在

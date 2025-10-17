@@ -20,9 +20,9 @@ func (service *B00kService) Init() {
 	service.db = dao.OfficialDB
 
 	logger.ServiceLog("Initializing the service...")
-	Service.LibSv.DB.Link(service.db)
+	Service.LibSv.DB = &dao.LibDao{DB: service.db}
 	logger.ServiceLog("LibService: Connect to the database... Done!")
-	Service.UserSv.DB.Link(service.db)
+	Service.UserSv.DB = &dao.UserDao{DB: service.db}
 	logger.ServiceLog("UserService: Connect to the database... Done!")
 	logger.ServiceLog("Service Initialization Done!")
 }

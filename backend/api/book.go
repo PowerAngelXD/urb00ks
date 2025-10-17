@@ -17,14 +17,12 @@ func GetBookInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id_str := c.Param("id")
 		id, _ := strconv.ParseInt(id_str, 10, 64)
-		if service.Service.LibSv.IsBookExist(id) {
-			book, err := service.Service.LibSv.GetBookById(id)
-			if err != nil {
-				log.Println(err.Error())
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: " + err.Error(), Data: 1})
-			} else {
-				c.JSON(http.StatusOK, ReturnStruct[model.BookInfo]{Status: http.StatusOK, Msg: "Get bookinfo successfully", Data: book})
-			}
+		book, err := service.Service.LibSv.GetBookById(id)
+		if err != nil {
+			log.Println(err.Error())
+			c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: " + err.Error(), Data: 1})
+		} else {
+			c.JSON(http.StatusOK, ReturnStruct[model.BookInfo]{Status: http.StatusOK, Msg: "Get bookinfo successfully", Data: book})
 		}
 	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func Test1() {
-	service.Service.LibSv.AddBook("TestBook", "FZSGBall")
+	service.Service.LibSv.AddBook("TestBook", "FZSGBall", "image.png")
 
 	if service.Service.LibSv.IsBookExistByTitle("hello") {
 		book, _ := service.Service.LibSv.GetBook("TestBook")
