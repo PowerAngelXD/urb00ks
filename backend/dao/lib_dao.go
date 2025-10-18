@@ -23,6 +23,8 @@ type iLibDao interface {
 	UpdateUrl(target int64, url string) error
 	Get(target int64) (model.BookInfo, error)
 	GetByTitle(target string) (model.BookInfo, error)
+	GetInNum(num int) ([]model.BookInfo, error)
+	GetAll() ([]model.BookInfo, error)
 	Delete(target int64) error
 }
 
@@ -234,6 +236,31 @@ func (ld *LibDao) GetByTitle(target string) (model.BookInfo, error) {
 	} else {
 		logger.DBLog("Operation: successfully get the book: [" + target + "]")
 		return book, nil
+	}
+}
+
+func (ld *LibDao) GetInNum(num int) ([]model.BookInfo, error) {
+	var books []model.BookInfo
+	result := ld.DB.Limit(int(num)).Find(&books)
+
+	if result.Error != nil {
+		logger.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
+		return nil, result.Error
+	} else {
+		return books, nil
+	}
+}
+
+func (ld *LibDao) GetAll() ([]model.BookInfo, error) {
+	var books []model.BookInfo
+	result := ld.DB.Find(&books)
+
+	if result.Error != nil {
+		logger.DBLog("Occurred error: Cannot get the book instance, details: " + result.Error.Error())
+		return nil, result.Error
+	} else {
+		logger.DBLog("Successfully get all the book!")
+		return books, nil
 	}
 }
 

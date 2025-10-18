@@ -1,6 +1,7 @@
 package api
 
 import (
+	"B00k/logger"
 	"B00k/model"
 	"B00k/service"
 	"log"
@@ -12,17 +13,45 @@ import (
 )
 
 // GET
-// 获取用户信息
+// 获取书籍信息
 func GetBookInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		logger.ServiceLog("begin get")
 		id_str := c.Param("id")
 		id, _ := strconv.ParseInt(id_str, 10, 64)
 		book, err := service.Service.LibSv.GetBookById(id)
 		if err != nil {
 			log.Println(err.Error())
-			c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: " + err.Error(), Data: 1})
+			c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get bookinfo failed, details: " + err.Error(), Data: 1})
 		} else {
 			c.JSON(http.StatusOK, ReturnStruct[model.BookInfo]{Status: http.StatusOK, Msg: "Get bookinfo successfully", Data: book})
+		}
+	}
+}
+
+// 一次性获取指定数量的书籍
+func GetMultipleBookInfo() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		num_str := c.Query("num")
+		if num_str == "all" {
+			// 获得数据库内所有数据
+			books, err := service.Service.LibSv.GetAsList("all")
+
+			if err != nil {
+				log.Println(err.Error())
+				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get bookinfo failed, details: " + err.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get books successfully", Data: books})
+			}
+		} else {
+			books, err := service.Service.LibSv.GetAsList(num_str)
+
+			if err != nil {
+				log.Println(err.Error())
+				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get bookinfo failed, details: " + err.Error(), Data: 1})
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get books successfully", Data: books})
+			}
 		}
 	}
 }
