@@ -9,6 +9,8 @@ import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 
+const BACKEND_URL = 'http://localhost:8080';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -62,5 +64,12 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      '/api': {
+        target: BACKEND_URL,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      }
+    }
   },
 })
