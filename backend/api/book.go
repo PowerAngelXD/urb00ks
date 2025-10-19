@@ -33,9 +33,10 @@ func GetBookInfo() gin.HandlerFunc {
 func GetMultipleBookInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		num_str := c.Query("num")
+		offset_str := c.Query("offset")
 		if num_str == "all" {
 			// 获得数据库内所有数据
-			books, err := service.Service.LibSv.GetAsList("all")
+			books, err := service.Service.LibSv.GetAsList("all", 0)
 
 			if err != nil {
 				log.Println(err.Error())
@@ -44,7 +45,8 @@ func GetMultipleBookInfo() gin.HandlerFunc {
 				c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get books successfully", Data: books})
 			}
 		} else {
-			books, err := service.Service.LibSv.GetAsList(num_str)
+			offset, _ := strconv.ParseInt(offset_str, 10, 32)
+			books, err := service.Service.LibSv.GetAsList(num_str, int(offset))
 
 			if err != nil {
 				log.Println(err.Error())
@@ -52,6 +54,19 @@ func GetMultipleBookInfo() gin.HandlerFunc {
 			} else {
 				c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get books successfully", Data: books})
 			}
+		}
+	}
+}
+
+// 获得书库内书的数量
+func GetSize() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		num, err := service.Service.LibSv.GetLibSize()
+
+		if err != nil {
+			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get the size failed, details: " + err.Error(), Data: 1})
+		} else {
+			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully get the size", Data: int(num)})
 		}
 	}
 }

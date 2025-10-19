@@ -17,6 +17,7 @@ func main() {
 	r.GET("/book/:id", api.GetBookInfo())
 	r.GET("/user/:id", api.GetUserInfo())
 	r.GET("/book/list", api.GetMultipleBookInfo())
+	r.GET("/book/count", api.GetSize())
 	r.POST("/book/add", api.AddBook())
 	r.POST("/user/register", api.RegisterNewUser())
 	r.DELETE("/book/remove/:id", api.DeleteBook())

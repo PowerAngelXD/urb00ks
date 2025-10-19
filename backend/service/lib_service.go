@@ -13,6 +13,7 @@ type ilibService interface {
 	IsBookExistByTitle(target string) bool
 	GetBook(target string) (model.BookInfo, error)
 	GetBookById(target int64) (model.BookInfo, error)
+	GetLibSize() (int64, error)
 	GetAsList(length string) ([]model.BookInfo, error)
 	AddBook(name string, author string, url string) error
 	DeleteBook(target int64) error
@@ -50,13 +51,18 @@ func (ls *libService) GetBookById(target int64) (model.BookInfo, error) {
 	return ls.DB.Get(target)
 }
 
+// 获得书库的藏书数量
+func (ls *libService) GetLibSize() (int64, error) {
+	return ls.DB.Count()
+}
+
 // 以列表形式返回
-func (ls *libService) GetAsList(length string) ([]model.BookInfo, error) {
+func (ls *libService) GetAsList(length string, offset int) ([]model.BookInfo, error) {
 	if length == "all" {
 		return ls.DB.GetAll()
 	} else {
 		num, _ := strconv.ParseInt(length, 10, 32)
-		return ls.DB.GetInNum(int(num))
+		return ls.DB.GetInNum(int(num), offset)
 	}
 }
 
