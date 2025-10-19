@@ -1,7 +1,20 @@
 # Backend for the urB00ks
 
-**这是对于项目：urB00ks的后端的readme文件**
+# Project Structure
+```
+/
+|-api      对应接口实现
+|-dao      数据库相关操作
+|-logger   自定义日志format
+|-model    对bookinfo和userinfo的定义
+|-service  介于dao和api两层之间的服务层，有利于解耦
+|-test     测试代码
+|-main.go  入口点
+```
 
-**可以看到目前后端处于快要完工的状态，但是还没有完全完工qwq**
-
-**等正式完工之后，这篇README会更加完善并规范**
+# Install
+想要启动urB00ks的后端服务，您只需要：
+```
+go run main.go
+```
+即可
