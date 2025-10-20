@@ -138,7 +138,7 @@ func (ls *libService) UpdateCoverage(target int64, cvrurl string) error {
 
 func (ls *libService) UpdateRating(target int64, rt int) error {
 	if !ls.IsBookExist(target) {
-		return errors.New("library error: want to update an unknown recommended book: \"" + strconv.FormatInt(target, 10) + "\"")
+		return errors.New("library error: want to update an unknown book: \"" + strconv.FormatInt(target, 10) + "\"")
 	}
 
 	result := ls.DB.UpdateRating(target, rt)

@@ -8,7 +8,7 @@ type BookInfo struct {
 	Id       int64  `json:"id" gorm:"primaryKey;type:int:column:id;autoIncrement"`
 	Title    string `json:"title" gorm:"not null;type:varchar(256);column:title"`
 	Author   string `json:"author" gorm:"not null;type:varchar(256);column:author"`
-	Rating   int    `json:"rating" gorm:"not null;type:int;column:rating"`
+	Rating   int    `json:"rating" gorm:"type:int;column:rating"`
 	Views    int    `json:"views" gorm:"type:int;column:views"`
 	ImageUrl string `json:"url" gorm:"type:text;column:image_url"`
 }

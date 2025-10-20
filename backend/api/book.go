@@ -139,11 +139,22 @@ func UpdateBook() gin.HandlerFunc {
 			}
 		case "update_rating":
 			rt, _ := strconv.ParseInt(content, 10, 32)
-			result := service.Service.LibSv.UpdateRating(id, int(rt))
-			if result != nil {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
+			old_book, _ := service.Service.LibSv.GetBookById(id)
+			old_rt := old_book.Rating
+			if old_rt == 0 {
+				result := service.Service.LibSv.UpdateRating(id, int(rt)) // 取平均数
+				if result != nil {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
+				} else {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
+				}
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
+				result := service.Service.LibSv.UpdateRating(id, (int(rt)+old_rt)/2) // 取平均数
+				if result != nil {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
+				} else {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
+				}
 			}
 		case "update_views":
 			if content == "add_one" {
