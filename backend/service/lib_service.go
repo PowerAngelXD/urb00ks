@@ -22,6 +22,7 @@ type ilibService interface {
 	UpdateBook(target int64, title string, author string, cvrurl string, rt int, views int) error
 	UpdateCoverage(target int64, cvrurl string) error
 	UpdateRating(target int64, rt int) error
+	UpdateViews(target int64, views int) error
 	UpdateTitle(target int64, title string) error
 	UpdateAuthor(target int64, author string) error
 	UpdateUrl(target int64, url string)
@@ -141,6 +142,22 @@ func (ls *libService) UpdateRating(target int64, rt int) error {
 	}
 
 	result := ls.DB.UpdateRating(target, rt)
+
+	if result != nil {
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
+	} else {
+		logger.ServiceLog("Successfully update a book!")
+		return nil
+	}
+}
+
+func (ls *libService) UpdateViews(target int64, views int) error {
+	if !ls.IsBookExist(target) {
+		return errors.New("library error: want to update an unknown recommended book: \"" + strconv.FormatInt(target, 10) + "\"")
+	}
+
+	result := ls.DB.UpdateViews(target, views)
 
 	if result != nil {
 		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())

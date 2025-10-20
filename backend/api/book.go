@@ -146,12 +146,22 @@ func UpdateBook() gin.HandlerFunc {
 				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
 			}
 		case "update_views":
-			views, _ := strconv.ParseInt(content, 10, 32)
-			result := service.Service.LibSv.UpdateRating(id, int(views))
-			if result != nil {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
+			if content == "add_one" {
+				current, _ := service.Service.LibSv.GetBookById(id)
+				result := service.Service.LibSv.UpdateViews(id, int(current.Views))
+				if result != nil {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
+				} else {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
+				}
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
+				views, _ := strconv.ParseInt(content, 10, 32)
+				result := service.Service.LibSv.UpdateViews(id, int(views))
+				if result != nil {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
+				} else {
+					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Successfully update a book", Data: 0})
+				}
 			}
 		case "update_all":
 			// e.g. /user/update?target=1&type=update_all&呼啸山庄;Emily Brontë;10;480;/image/Heathcliff/WildHunt.png

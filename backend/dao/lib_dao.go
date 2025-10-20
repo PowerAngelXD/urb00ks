@@ -241,6 +241,7 @@ func (ld *LibDao) GetByTitle(target string) (model.BookInfo, error) {
 
 func (ld *LibDao) GetInNum(num int, offset int) ([]model.BookInfo, error) {
 	var books []model.BookInfo
+	logger.DBLog("offset: " + strconv.Itoa(offset))
 	result := ld.DB.Limit(int(num)).Offset(offset).Find(&books)
 
 	if result.Error != nil {
