@@ -21,18 +21,23 @@
                     <v-row>
                         <h3> rating: {{ book_info.rating }}</h3>
                     </v-row>
-                    <v-row class="mt-6">
-                        <h3> 您可以打分：</h3>
-                    </v-row>
-                    <v-row class="mt-9">
-                        <v-btn-toggle rounded="xl" border>
-                            <v-btn>1</v-btn>
-                            <v-btn>2</v-btn>
-                            <v-btn>3</v-btn>
-                            <v-btn>4</v-btn>
-                            <v-btn>5</v-btn>
-                        </v-btn-toggle>
-                    </v-row>
+                    <div v-if="!isJudged">
+                        <v-row class="mt-6">
+                            <h3> 您可以打分：</h3>
+                        </v-row>
+                        <v-row class="mt-9">
+                            <v-btn-toggle v-model="custom_rating" rounded="xl" border>
+                                <v-btn v-for="score in 5" @click="judgeBook(score)"> {{ score }} </v-btn>
+                            </v-btn-toggle>
+                        </v-row>
+                    </div>
+                    <div v-else>
+                        <v-row class="mt-6">
+                            <v-alert type="success" variant="tonal" max-width="400">
+                                您已成功评分
+                            </v-alert>
+                        </v-row>
+                    </div>
                 </v-container>
             </v-col>
         </v-row>
@@ -55,14 +60,28 @@ import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
-const custom_rating = ref(0);
+let isJudged = ref(false)
+const custom_rating = ref(null);
 const route = useRoute();
 const book_info = ref(null);
 
 const fetchBookDetails = async () => {
     try {
+        console.log("fetch bool: " + isJudged.value)
         const response = await axios.get(`/api/book/${route.params.id}`);
         book_info.value = response.data.data;
+        console.log(response)
+    }
+    catch (e) {
+
+    }
+}
+
+const judgeBook = async (score) => {
+    try {
+        const response = await axios.patch(`/api/book/update?target=${route.params.id}&type=update_rating&content=${score}`)
+        console.log(response)
+        isJudged.value = true;
     }
     catch (e) {
 
@@ -70,6 +89,7 @@ const fetchBookDetails = async () => {
 }
 
 onMounted(() => {
+    console.log(isJudged.value)
     fetchBookDetails();
 })
 </script>
