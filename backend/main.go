@@ -3,13 +3,11 @@ package main
 import (
 	"B00k/api"
 	"B00k/service"
-	"B00k/test"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	test.TestDB()
 	service.Service.Init()
 
 	r := gin.Default()
