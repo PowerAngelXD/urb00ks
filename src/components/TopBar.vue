@@ -13,8 +13,10 @@
 
   <v-app-bar :elevation="2" color="blue-lighten-1">
     <template v-slot:prepend>
-      <v-btn icon="fa-solid fa-book" />
+      <v-btn icon="fa-solid fa-book"/>
     </template>
+
+    <v-btn v-if="isSubPage" icon="fa-solid fa-home" @click="goToHome"/>
 
     <v-app-bar-title>urB00ks - 网上图书推荐</v-app-bar-title>
     <v-text-field label="搜索相关" density="compact" class="mt-5" variant="outlined"
@@ -26,11 +28,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, onMounted, watch } from 'vue';
+import axios from 'axios';
+import router from '@/router';
 
 let userName = ref(null);
+let isSubPage = ref(false);
 let userBar = ref(false);
+
+const goToHome = () => {
+  router.push(`/`);
+}
 
 const fetchUserName = async () => {
   try {
@@ -47,5 +55,21 @@ const fetchUserName = async () => {
   }
 }
 
-onMounted(() => { fetchUserName(); })
+onMounted(() => { 
+  fetchUserName();
+})
+
+watch(
+  () => router.currentRoute.value,
+  (newRoute) => {
+    if (newRoute.path === "/") {
+      isSubPage.value = false;
+    } 
+    else {
+      isSubPage.value = true;
+    }
+    console.log("is sub: " + isSubPage.value);
+  },
+  {immediate: true}
+)
 </script>

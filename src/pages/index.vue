@@ -2,12 +2,12 @@
   <meta charset="UTF-8">
   <TopBar/>
 
-  <v-container>
+  <v-container background-color="blue lighten-2">
     <v-skeleton-loader v-if="isBookOnLoading" type="card-avatar, article, actions" :max-width="300" class="mx-auto" />
 
     <v-row v-else>
       <v-col v-for="book in books" :key="book.id" cols="12" sm="6" md="4" lg="3">
-        <v-card class="mx-auto" height="100%" color="light-blue-lighten-4" hover link>
+        <v-card class="mx-auto" height="100%" color="light-blue-lighten-4" hover link @click="goToBookDetails(book.id)">
           <v-img :src="book.url" height="200px" cover></v-img>
 
           <v-card-title>
@@ -18,8 +18,8 @@
             {{ book.author }}
           </v-card-subtitle>
 
-          <v-card-text icon="fa-solid fa-eye">
-            <div class="text-truncate">{{ book.views }}</div>
+          <v-card-text>
+            👁 {{ book.views }}
           </v-card-text>
         </v-card>
       </v-col>
@@ -29,7 +29,7 @@
       <v-progress-circular indeterminate color="blue-lighten-1" size="48" />
     </v-row>
 
-    <v-row v-if="total_book !== null && existed_book_num >= total_book" justify="center" class="my-6">
+    <v-row v-if="(total_book !== null && existed_book_num >= total_book) && !isBookOnLoading" justify="center" class="my-6">
       <v-alert type="info" variant="tonal" max-width="400">
         已加载所有书籍。
       </v-alert>
@@ -45,19 +45,25 @@
 <script setup>
 import TopBar from '@/components/TopBar.vue';
 import { onMounted, ref, onBeforeUnmount } from 'vue';
-import axios from 'axios'
+import axios from 'axios';
+import router from '@/router';
 
 let isUserOnLoading = ref(true);
 let isBookOnLoading = ref(true);
-let isBookContinueLoading = ref(false)
-let books = ref([])
-let isBookListInitialized = ref(false)
-let existed_book_num = ref(0)
-let total_book = ref(0)
-let canShowArrowUpButton = ref(false)
+let isBookContinueLoading = ref(false);
+let books = ref([]);
+let isBookListInitialized = ref(false);
+let existed_book_num = ref(0);
+let total_book = ref(0);
+let canShowArrowUpButton = ref(false);
+
+const goToBookDetails = (id) => {
+  const response = axios.patch(`/api/book/update?target=${id}&type=update_views&content=add_one`)
+  router.push(`/book_info/${id}`)
+}
 
 const showArrowUpButton = () => {
-  if ((window.scrollY || document.documentElement.scrollTop) > 200) {
+  if ((window.scrollY || document.documentElement.scrollTop) > 500) {
     canShowArrowUpButton.value = true;
   } else {
     canShowArrowUpButton.value = false;
@@ -80,12 +86,12 @@ const initBookList = async () => {
   catch (e) {
     console.log("occurred error: " + e)
   }
-  finally { }
+  finally {}
 }
 
 const fetchBooks = async () => {
   try {
-    console.log(isBookListInitialized.value)
+    console.log(isBookListInitialized.value + ":" + existed_book_num.value)
 
     if (existed_book_num.value === 0) {
       isBookOnLoading.value = true;
@@ -105,9 +111,10 @@ const fetchBooks = async () => {
       isBookContinueLoading.value = false
     }
     else {
-      const response = await axios.get("/api/book/list?num=10&offset=" + existed_book_num.value)
+      const response = await axios.get("/api/book/list?num=10&offset=0")
       existed_book_num.value += 10;
       books.value = response.data.data;
+      console.log(books.value)
       isBookListInitialized.value = true;
     }
 
