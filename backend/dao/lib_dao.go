@@ -179,7 +179,7 @@ func (ld *LibDao) UpdateViews(target int64, views int) error {
 		logger.DBLog("Occurred error: Cannot update the book instance, details: " + result.Error.Error())
 		return result.Error
 	} else {
-		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Title")
+		logger.DBLog("Operation: successfully update the book: [" + strconv.FormatInt(target, 10) + "] target field: Views")
 		return nil
 	}
 }
