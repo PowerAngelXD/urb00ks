@@ -1,6 +1,7 @@
 package api
 
 import (
+	"B00k/logger"
 	"B00k/model"
 	"B00k/service"
 	"log"
@@ -15,18 +16,36 @@ import (
 // 获得userinfo
 func GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id_str := c.Param("id")
-		id, _ := strconv.ParseInt(id_str, 10, 64)
-		if service.Service.UserSv.IsUserExist(id) {
-			user, err := service.Service.UserSv.GetUserById(id)
-			if err != nil {
-				log.Println(err.Error())
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+		type_str := c.Query("type")
+		content := c.Query("content")
+
+		if type_str == "id" {
+			logger.ServiceLog("enter id case")
+			id, _ := strconv.ParseInt(content, 10, 64)
+			if service.Service.UserSv.IsUserExist(id) {
+				user, err := service.Service.UserSv.GetUserById(id)
+				if err != nil {
+					log.Println(err.Error())
+					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+				} else {
+					c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+				}
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
 			}
-		} else {
-			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot delete an unknown user", Data: 1})
+		}
+		if type_str == "name" {
+			if service.Service.UserSv.IsUserExistByName(content) {
+				user, err := service.Service.UserSv.GetUser(content)
+				if err != nil {
+					log.Println(err.Error())
+					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+				} else {
+					c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+				}
+			} else {
+				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
+			}
 		}
 	}
 }

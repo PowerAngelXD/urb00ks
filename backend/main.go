@@ -13,7 +13,7 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/book/:id", api.GetBookInfo())
-	r.GET("/user/:id", api.GetUserInfo())
+	r.GET("/user", api.GetUserInfo())
 	r.GET("/book/list", api.GetMultipleBookInfo())
 	r.GET("/book/count", api.GetSize())
 	r.POST("/book/add", api.AddBook())
