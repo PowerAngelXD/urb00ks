@@ -159,7 +159,7 @@ func UpdateBook() gin.HandlerFunc {
 		case "update_views":
 			if content == "add_one" {
 				current, _ := service.Service.LibSv.GetBookById(id)
-				result := service.Service.LibSv.UpdateViews(id, int(current.Views))
+				result := service.Service.LibSv.UpdateViews(id, (int(current.Views) + 1))
 				if result != nil {
 					c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update a book failed, details: " + result.Error(), Data: 1})
 				} else {
