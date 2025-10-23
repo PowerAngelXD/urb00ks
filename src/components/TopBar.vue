@@ -1,21 +1,79 @@
 <template>
-  <v-alert
-    closable
-    icon="fa-solid fa-check"
-    title="提示"
-    text="登录成功！"
-    color="green"
-    v-model="isShowLoginDone">
+  <v-alert closable icon="fa-solid fa-check" title="提示" text="登录成功！" color="green" v-model="isShowLoginDone">
   </v-alert>
 
-  <v-alert
-    closable
-    icon="fa-solid fa-triangle-exclamation"
-    title="提示"
-    text="登录失败！"
-    color="red"
+  <v-alert closable icon="fa-solid fa-triangle-exclamation" title="提示" text="登录失败！" color="red"
     v-model="isShowLoginFailed">
+    {{ details }}
   </v-alert>
+
+  <v-alert closable icon="fa-solid fa-check" title="提示" text="注册成功！已为您自动登录" color="green" v-model="isShowRegisterDone">
+  </v-alert>
+
+  <v-alert closable icon="fa-solid fa-check" title="提示" text="注册失败！" color="red" v-model="isShowRegisterFailed">
+    {{ details }}
+  </v-alert>
+
+  <v-dialog v-model="registerDialog" width="600" color="blue lighten-2">
+    <v-card color="blue lighten-2">
+      <v-toolbar color="blue lighten-2">
+        <v-container>
+          <v-row align="center">
+            <v-btn size="small" icon="fa-solid fa-close" @click="registerDialog = false"></v-btn>
+            <v-label>新用户，请注册</v-label>
+          </v-row>
+        </v-container>
+      </v-toolbar>
+      <v-container>
+        <v-row>
+          <v-col cols="1"></v-col>
+          <v-col cols="7">
+            <v-label>请输入填写新账户必要的信息来注册</v-label>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="1"></v-col>
+          <v-col cols="7">
+            <v-text-field label="账户名称" density="compact" variant="outlined" class="mt-3"
+              v-model="userName"></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="1"></v-col>
+          <v-col cols="7">
+            <v-text-field label="账户密码" density="compact" variant="outlined" class="mt-3"
+              v-model="userPassword"></v-text-field>
+          </v-col>
+        </v-row>
+        <!--
+        <v-row>
+          <v-col cols="1"></v-col>
+          <v-col cols="7">
+            <v-label>生日</v-label>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="1"></v-col>
+          <v-col cols="4">
+            <v-select clearable label="Year" variant="outlined" :items="yearItems" v-model="pickedYear"></v-select>
+          </v-col>
+          <v-col cols="3">
+            <v-select clearable label="Month" variant="outlined" :items="monthItems" v-model="pickedMonth"></v-select>
+          </v-col>
+          <v-col cols="3">
+            <v-select clearable label="Day" variant="outlined" :items="yearItems" v-model="pickedYear"></v-select>
+          </v-col>
+        </v-row>
+          --->
+        <v-row>
+          <v-col cols="10"></v-col>
+          <v-col cols="2">
+            <v-btn color="white" variant="outlined" @click="register(userName, userPassword, '2025-10-10')">注册</v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+  </v-dialog>
 
   <v-dialog v-model="loginDialog" width="600" color="blue lighten-2">
     <v-card color="blue lighten-2">
@@ -37,7 +95,8 @@
         <v-row>
           <v-col cols="1"></v-col>
           <v-col cols="7">
-            <v-text-field label="账户名称" density="compact" variant="outlined" class="mt-3" v-model="userName"></v-text-field>
+            <v-text-field label="账户名称" density="compact" variant="outlined" class="mt-3"
+              v-model="userName"></v-text-field>
           </v-col>
         </v-row>
         <v-row>
@@ -69,7 +128,8 @@
     <br></br>
     <v-list-item v-if="isLogIn" :title="userInfo.name"></v-list-item>
     <v-list density="compact" nav v-else>
-      <v-list-item prepend-icon="fa-solid fa-user-plus" title="没有帐户？请注册" value="login"></v-list-item>
+      <v-list-item prepend-icon="fa-solid fa-user-plus" title="没有帐户？请注册" value="register"
+        @click="registerDialog = true"></v-list-item>
       <v-list-item prepend-icon="fa-solid fa-user" title="已有账户？请登录" value="login"
         @click="loginDialog = true"></v-list-item>
     </v-list>
@@ -98,7 +158,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import router from '@/router';
 
@@ -115,30 +175,83 @@ let userInfo = ref(null);
 let isShowLoginDone = ref(false);
 let isShowLoginFailed = ref(false);
 
+let registerDialog = ref(false);
+let isShowRegisterFailed = ref(false);
+let isShowRegisterDone = ref(false);
+
 const goToHome = () => {
   router.push(`/`);
 }
 
+let details = ref(null)
 const login = async (name, password) => {
+  if (name == null || password == null) {
+    details.value = `输入内容不能为空！`
+    loginDialog.value = false;
+    isShowLoginFailed.value = true;
+    userBar.value = false;
+
+    return;
+  }
+
   try {
-    const response = await axios.get(`api/user?type=name&content=${name}`);
+    const response = await axios.get(`api/user?type=name&content=${name}&password=${password}`);
     if (response.status != 404) {
       if (password == response.data.data.password) {
-        userInfo = response.data.data;
+        userInfo.value = response.data.data;
         loginDialog.value = false;
         isShowLoginDone.value = true;
         isLogIn.value = true;
         userBar.value = false;
       }
       else {
+        details.value = `拒绝登录：${response.data.msg}`
         loginDialog.value = false;
         isShowLoginFailed.value = true;
         userBar.value = false;
       }
     }
     else {
+      details.value = `拒绝登录：找不到您指定的用户`
       loginDialog.value = false;
       isShowLoginFailed.value = true;
+      userBar.value = false;
+    }
+  }
+  catch (e) {
+    console.log("occurred error:" + e);
+  }
+  finally {
+    isUserOnLoading.value = false;
+  }
+}
+
+const register = async (name, password, birthday) => {
+  if (name == null || password == null) {
+    details.value = `输入内容不能为空！`
+    registerDialog.value = false;
+    isShowRegisterFailed.value = true;
+    userBar.value = false;
+
+    return;
+  }
+
+  try {
+    const response = await axios.post(`api/user/register?name=${name}&birth=${birthday}&pswd=${password}`);
+    if (response.status == 200) {
+      registerDialog.value = false;
+
+      const user_response = await axios.get(`api/user?type=name&content=${name}&password=${password}`);
+      userInfo.value = user_response.data.data;
+      isLogIn.value = true;
+      registerDialog.value = false;
+      isShowRegisterDone.value = true;
+      userBar.value = false;
+    }
+    else {
+      details.value = `注册失败：${response.data.msg}`;
+      registerDialog.value = false;
+      isShowRegisterFailed.value = true;
       userBar.value = false;
     }
   }
