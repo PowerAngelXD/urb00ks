@@ -18,6 +18,7 @@ func GetUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		type_str := c.Query("type")
 		content := c.Query("content")
+		password := c.Query("password")
 
 		if type_str == "id" {
 			logger.ServiceLog("enter id case")
@@ -28,7 +29,11 @@ func GetUserInfo() gin.HandlerFunc {
 					log.Println(err.Error())
 					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
 				} else {
-					c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+					if password != user.Password {
+						c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Get userinfo failed: password wrong", Data: 1})
+					} else {
+						c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+					}
 				}
 			} else {
 				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
@@ -41,7 +46,11 @@ func GetUserInfo() gin.HandlerFunc {
 					log.Println(err.Error())
 					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
 				} else {
-					c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+					if password != user.Password {
+						c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Get userinfo failed: password wrong", Data: 1})
+					} else {
+						c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+					}
 				}
 			} else {
 				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
