@@ -10,7 +10,7 @@
   <v-alert closable icon="fa-solid fa-check" title="提示" text="注册成功！已为您自动登录" color="green" v-model="isShowRegisterDone">
   </v-alert>
 
-  <v-alert closable icon="fa-solid fa-check" title="提示" text="注册失败！" color="red" v-model="isShowRegisterFailed">
+  <v-alert closable icon="fa-solid fa-triangle-exclamation" title="提示" text="注册失败！" color="red" v-model="isShowRegisterFailed">
     {{ details }}
   </v-alert>
 
@@ -136,7 +136,7 @@
     <v-divider></v-divider>
 
     <v-list v-if="isLogIn" density="compact" nav>
-      <v-list-item prepend-icon="fa-solid fa-star" title="我的收藏" value="myFavs"></v-list-item>
+      <v-list-item prepend-icon="fa-solid fa-star" title="我的收藏" value="myFavs" @click="router.push(`/Favs/${userInfo.id}`)"></v-list-item>
       <v-list-item prepend-icon="fa-solid fa-gear" title="设置" value="settings"></v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -146,9 +146,9 @@
       <v-btn icon="fa-solid fa-book" />
     </template>
 
-    <v-btn v-if="isSubPage" icon="fa-solid fa-home" @click="goToHome" />
+    <v-btn v-if="isSubPage" icon="fa-solid fa-home" @click="router.push(`/`)" />
 
-    <v-app-bar-title>urB00ks - 网上图书推荐</v-app-bar-title>
+    <v-app-bar-title> {{ title }} </v-app-bar-title>
     <v-text-field label="搜索相关" density="compact" class="mt-5" variant="outlined"
       prepend-icon="fa-solid fa-magnifying-glass" height="5">
     </v-text-field>
@@ -159,19 +159,20 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import { userInfo, isLogIn } from '@/script/user'
 import axios from 'axios';
 import router from '@/router';
+
+let title = ref("urB00ks - 网上图书推荐");
 
 let isSubPage = ref(false);
 let userBar = ref(false);
 
-let isLogIn = ref(false);
 let isShowPassword = ref(false);
 let loginDialog = ref(false);
 let signupDialog = ref(false);
 let userName = ref(null);
 let userPassword = ref(null);
-let userInfo = ref(null);
 let isShowLoginDone = ref(false);
 let isShowLoginFailed = ref(false);
 
@@ -179,11 +180,8 @@ let registerDialog = ref(false);
 let isShowRegisterFailed = ref(false);
 let isShowRegisterDone = ref(false);
 
-const goToHome = () => {
-  router.push(`/`);
-}
-
 let details = ref(null)
+
 const login = async (name, password) => {
   if (name == null || password == null) {
     details.value = `输入内容不能为空！`
@@ -238,7 +236,7 @@ const register = async (name, password, birthday) => {
 
   try {
     const response = await axios.post(`api/user/register?name=${name}&birth=${birthday}&pswd=${password}`);
-    if (response.status == 200) {
+    if (response.status == 200 && response.data.status == 200) {
       registerDialog.value = false;
 
       const user_response = await axios.get(`api/user?type=name&content=${name}&password=${password}`);
@@ -268,6 +266,10 @@ watch(
   (newRoute) => {
     if (newRoute.path === "/") {
       isSubPage.value = false;
+    }
+    else if (newRoute.matched.some(record => record.path === "/book_info/:id")) {
+      title.value = "urB00ks - 图书详情"
+      isSubPage.value = true;
     }
     else {
       isSubPage.value = true;

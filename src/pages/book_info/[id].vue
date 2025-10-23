@@ -21,6 +21,10 @@
                     <v-row>
                         <h3> rating: {{ book_info.rating }}</h3>
                     </v-row>
+                    <v-row class="mt-7">
+                        <v-btn v-if="isFaved && isInFavs() && isLogIn" prepend-icon="fa-solid fa-star" @click="isFaved = true">收藏</v-btn>
+                        <v-alert v-else-if="isFaved && isInFavs()" type="success" variant="tonal" max-width="400"> 已收藏 </v-alert>
+                    </v-row>
                     <div v-if="!isJudged">
                         <v-row class="mt-6">
                             <h3> 您可以打分：</h3>
@@ -58,12 +62,18 @@
 import TopBar from '@/components/TopBar.vue';
 import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
+import { isLogIn, userInfo } from '@/script/user'
 import axios from 'axios';
 
-let isJudged = ref(false)
+let isJudged = ref(false);
+let isFaved = ref(false);
 const custom_rating = ref(null);
 const route = useRoute();
 const book_info = ref(null);
+
+const isInFavs = () => {
+    return userInfo.value.favs.indexOf() != -1;
+}
 
 const fetchBookDetails = async () => {
     try {
