@@ -5,7 +5,7 @@ type UserInfo struct {
 	Name     string   `json:"name" gorm:"not null;type:varchar(100);column:name"`
 	Birth    string   `json:"birth" gorm:"not null;type:varchar(50);column:birth"`
 	Password string   `json:"password" gorm:"not null;type:varchar(20);column:password"`
-	Favs     []string `json:"favs" gorm:"type:text;serializer:json;column:favs"`
+	Favs     []string `json:"favs" gorm:"type:text;serializer:json;column:favs;default:'[]'"`
 }
 
 func (UserInfo) TableName() string {

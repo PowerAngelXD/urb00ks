@@ -60,9 +60,14 @@ func (ud *UserDao) IsExistByName(target string) bool {
 }
 
 func (ud *UserDao) IsExist(target int64) bool {
+	logger.DBLog("ID: " + strconv.Itoa(int(target)))
 	var user model.UserInfo
 	result := ud.DB.First(&user, target)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return false
+		}
+		logger.DBLog("FATAL: " + result.Error.Error())
 		return false
 	} else {
 		return true
@@ -89,7 +94,7 @@ func (ud *UserDao) UpdateAll(target int64, name string, pswd string, favs []stri
 
 	var user model.UserInfo
 	user.Id = target
-	result := ud.DB.Model(&user).Updates(map[string]any{
+	result := ud.DB.Model(&user).Save(map[string]any{
 		"name":     name,
 		"password": pswd,
 		"favs":     favs,
@@ -158,7 +163,7 @@ func (ud *UserDao) AddFav(target int64, fav string) error {
 	}
 
 	user.Favs = append(user.Favs, fav)
-	result := ud.DB.Model(&user).Updates(user)
+	result := ud.DB.Save(&user)
 
 	if result.Error != nil {
 		logger.DBLog("Occurred error: In operation AddFavs " + result.Error.Error())

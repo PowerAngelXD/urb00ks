@@ -80,24 +80,16 @@ func (us *userService) DeleteUser(target int64) error {
 // 对指定用户增加喜好书籍
 func (us *userService) AddFav(target int64, book string) error {
 	if !us.IsUserExist(target) {
-		return errors.New("library error: an existed user is already in the library")
+		return errors.New("library error: an unknown user is already in the library")
 	}
 
-	user, err := us.DB.Get(target)
+	result := us.DB.AddFav(target, book)
 
-	if err != nil {
-		logger.ServiceLog("library error: occurred some problem, details: " + err.Error())
-		return err
+	if result != nil {
+		logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
+		return result
 	} else {
-		user.Favs = append(user.Favs, book)
-		result := us.DB.UpdateAll(target, user.Name, user.Password, user.Favs)
-
-		if result != nil {
-			logger.ServiceLog("library error: occurred some problem, details: " + result.Error())
-			return err
-		}
-
-		logger.ServiceLog("Successfully create a user!")
+		logger.ServiceLog("Successfully update a user!")
 		return nil
 	}
 }
