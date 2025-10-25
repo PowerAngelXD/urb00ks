@@ -22,8 +22,9 @@
                         <h3> rating: {{ book_info.rating }}</h3>
                     </v-row>
                     <v-row class="mt-7">
-                        <v-btn v-if="isFaved && isInFavs() && isLogIn" prepend-icon="fa-solid fa-star" @click="isFaved = true">收藏</v-btn>
-                        <v-alert v-else-if="isFaved && isInFavs()" type="success" variant="tonal" max-width="400"> 已收藏 </v-alert>
+                        <v-btn v-if="isLogIn && !isInFavs" prepend-icon="fa-solid fa-star" @click="isFaved = true">收藏</v-btn>
+                        <v-alert v-else-if="isInFavs" type="success" variant="tonal" max-width="400"> 已收藏 </v-alert>
+                        <v-label v-else>请登陆后才能进行该操作！</v-label>
                     </v-row>
                     <div v-if="!isJudged">
                         <v-row class="mt-6">
@@ -60,20 +61,27 @@
 
 <script setup>
 import TopBar from '@/components/TopBar.vue';
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { isLogIn, userInfo } from '@/script/user'
 import axios from 'axios';
 
 let isJudged = ref(false);
-let isFaved = ref(false);
+let isFav = ref(false);
 const custom_rating = ref(null);
 const route = useRoute();
 const book_info = ref(null);
 
-const isInFavs = () => {
-    return userInfo.value.favs.indexOf() != -1;
-}
+const isInFavs = computed(() => {
+    const userFavs = userInfo.value?.favs || [];
+    const bookTitle = book_info.value?.title || '';
+
+    if (!Array.isArray(userFavs)) {
+        return false; 
+    }
+    console.log(userFavs)
+    return bookTitle && userFavs.includes(bookTitle);
+})
 
 const fetchBookDetails = async () => {
     try {
@@ -99,7 +107,6 @@ const judgeBook = async (score) => {
 }
 
 onMounted(() => {
-    console.log(isJudged.value)
     fetchBookDetails();
 })
 </script>

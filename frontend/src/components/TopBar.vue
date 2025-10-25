@@ -10,7 +10,8 @@
   <v-alert closable icon="fa-solid fa-check" title="提示" text="注册成功！已为您自动登录" color="green" v-model="isShowRegisterDone">
   </v-alert>
 
-  <v-alert closable icon="fa-solid fa-triangle-exclamation" title="提示" text="注册失败！" color="red" v-model="isShowRegisterFailed">
+  <v-alert closable icon="fa-solid fa-triangle-exclamation" title="提示" text="注册失败！" color="red"
+    v-model="isShowRegisterFailed">
     {{ details }}
   </v-alert>
 
@@ -136,7 +137,8 @@
     <v-divider></v-divider>
 
     <v-list v-if="isLogIn" density="compact" nav>
-      <v-list-item prepend-icon="fa-solid fa-star" title="我的收藏" value="myFavs" @click="router.push(`/Favs/${userInfo.id}`)"></v-list-item>
+      <v-list-item prepend-icon="fa-solid fa-star" title="我的收藏" value="myFavs"
+        @click="router.push(`/Favs/${userInfo.id}`)"></v-list-item>
       <v-list-item prepend-icon="fa-solid fa-gear" title="设置" value="settings"></v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -158,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import { userInfo, isLogIn } from '@/script/user'
 import axios from 'axios';
 import router from '@/router';
@@ -194,33 +196,20 @@ const login = async (name, password) => {
 
   try {
     const response = await axios.get(`api/user?type=name&content=${name}&password=${password}`);
-    if (response.status != 404) {
-      if (password == response.data.data.password) {
-        userInfo.value = response.data.data;
-        loginDialog.value = false;
-        isShowLoginDone.value = true;
-        isLogIn.value = true;
-        userBar.value = false;
-      }
-      else {
-        details.value = `拒绝登录：${response.data.msg}`
-        loginDialog.value = false;
-        isShowLoginFailed.value = true;
-        userBar.value = false;
-      }
-    }
-    else {
-      details.value = `拒绝登录：找不到您指定的用户`
-      loginDialog.value = false;
-      isShowLoginFailed.value = true;
-      userBar.value = false;
-    }
+    userInfo.value = response.data.data;
+    loginDialog.value = false;
+    isShowLoginDone.value = true;
+    isLogIn.value = true;
   }
   catch (e) {
-    console.log("occurred error:" + e);
+    console.log(`error: ${e.response.data.msg}`)
+    details.value = `拒绝登录：${e.response.data.msg}`
+    loginDialog.value = false;
+    isShowLoginFailed.value = true;
+    console.log(e)
   }
   finally {
-    isUserOnLoading.value = false;
+    userBar.value = false;
   }
 }
 
@@ -244,20 +233,18 @@ const register = async (name, password, birthday) => {
       isLogIn.value = true;
       registerDialog.value = false;
       isShowRegisterDone.value = true;
-      userBar.value = false;
     }
     else {
       details.value = `注册失败：${response.data.msg}`;
       registerDialog.value = false;
       isShowRegisterFailed.value = true;
-      userBar.value = false;
     }
   }
   catch (e) {
     console.log("occurred error:" + e);
   }
   finally {
-    isUserOnLoading.value = false;
+    userBar.value = false;
   }
 }
 
@@ -278,4 +265,5 @@ watch(
   },
   { immediate: true }
 )
+
 </script>
