@@ -1,15 +1,15 @@
-# urB00ks API 文档
-#### 由apifox自动生成
-
+# API文档（由Apifox生成）
 ## GET 查询用户信息
 
-GET /user/{id}
+GET /api/user
 
 ### 请求参数
 
 |名称|位置|类型|必选|说明|
 |---|---|---|---|---|
-|id|path|integer| 是 |用户的ID|
+|type|query|string| 否 |通过什么类型来查询|
+|content|query|string| 否 |查询内容|
+|password|query|string| 否 |用户密码|
 
 > 返回示例
 
@@ -23,9 +23,9 @@ GET /user/{id}
     "name": "缪玲",
     "birth": "2003-04-05",
     "favs": [
-      "in commodo minim Lorem occaecat",
-      "et elit",
-      "enim"
+      "7",
+      "9",
+      "10"
     ]
   }
 }
@@ -71,7 +71,7 @@ GET /user/{id}
 
 ## GET 查询书籍信息
 
-GET /book/{id}
+GET /api/book/{id}
 
 ### 请求参数
 
@@ -139,7 +139,7 @@ GET /book/{id}
 
 ## GET 获得一定数量的书籍
 
-GET /book/list
+GET /api/book/list
 
 ### 请求参数
 
@@ -220,7 +220,7 @@ GET /book/list
 
 ## GET 获得书库内书的数量
 
-GET /book/count
+GET /api/book/count
 
 > 返回示例
 
@@ -250,9 +250,62 @@ GET /book/count
 |» msg|string|true|none||none|
 |» data|integer|true|none||none|
 
+## GET 搜索对应书本
+
+GET /api/book/search/{target}
+
+### 请求参数
+
+|名称|位置|类型|必选|说明|
+|---|---|---|---|---|
+|target|path|string| 是 |none|
+
+> 返回示例
+
+> 200 Response
+
+```json
+{
+  "status": 200,
+  "msg": "Get bookinfo successfully",
+  "data": [
+    {
+      "id": 6,
+      "title": "The Fault in Our Stars",
+      "author": "John Green",
+      "rating": 4,
+      "views": 1681,
+      "url": "https://images.gr-assets.com/books/1360206420m/11870085.jpg\r"
+    }
+  ]
+}
+```
+
+### 返回结果
+
+|状态码|状态码含义|说明|数据模型|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|Inline|
+
+### 返回数据结构
+
+状态码 **200**
+
+|名称|类型|必选|约束|中文名|说明|
+|---|---|---|---|---|---|
+|» status|integer|true|none||none|
+|» msg|string|true|none||none|
+|» data|[object]|true|none||none|
+|»» id|integer|false|none||none|
+|»» title|string|false|none||none|
+|»» author|string|false|none||none|
+|»» rating|integer|false|none||none|
+|»» views|integer|false|none||none|
+|»» url|string|false|none||none|
+
 ## POST 创建用户
 
-POST /user/register
+POST /api/user/register
 
 ### 请求参数
 
@@ -311,7 +364,7 @@ POST /user/register
 
 ## POST 新增书本
 
-POST /book/add
+POST /api/book/add
 
 ### 请求参数
 
@@ -370,7 +423,7 @@ POST /book/add
 
 ## DELETE 删除书本
 
-DELETE /book/remove/{id}
+DELETE /api/book/remove/{id}
 
 ### 请求参数
 
@@ -427,7 +480,7 @@ DELETE /book/remove/{id}
 
 ## DELETE 删除用户
 
-DELETE /user/remove/{id}
+DELETE /api/user/remove/{id}
 
 ### 请求参数
 
@@ -484,7 +537,7 @@ DELETE /user/remove/{id}
 
 ## PATCH 更新用户相关信息
 
-PATCH /user/update
+PATCH /api/user/update
 
 ### 请求参数
 
@@ -543,7 +596,7 @@ PATCH /user/update
 
 ## PATCH 更新书本相关信息
 
-PATCH /book/update
+PATCH /api/book/update
 
 ### 请求参数
 

@@ -6,6 +6,7 @@ import (
 	"B00k/service"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -61,7 +62,18 @@ func GetMultipleBookInfo() gin.HandlerFunc {
 // 搜索书本，并返回所有匹配的结果
 func SearchBooks() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		pattern := "^.*" + c.Param("target") + ".*$"
+		regex := regexp.MustCompile(pattern)
 
+		list, _ := service.Service.LibSv.GetAsList("all", 0)
+		var results []model.BookInfo = make([]model.BookInfo, 0)
+		for _, book := range list {
+			if regex.MatchString(book.Title) {
+				results = append(results, book)
+			}
+		}
+
+		c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get search results successfully", Data: results})
 	}
 }
 

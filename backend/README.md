@@ -11,10 +11,3 @@
 |-test     测试代码
 |-main.go  入口点
 ```
-
-# Install
-想要启动urB00ks的后端服务，您只需要：
-```
-go run main.go
-```
-即可

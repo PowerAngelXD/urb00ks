@@ -145,8 +145,15 @@
     <v-btn v-if="isSubPage" icon="fa-solid fa-home" @click="router.push(`/`)" />
 
     <v-app-bar-title> {{ title }} </v-app-bar-title>
-    <v-text-field label="搜索相关" density="compact" class="mt-5" variant="outlined"
-      prepend-icon="fa-solid fa-magnifying-glass" height="5">
+    <v-text-field 
+      label="搜索相关" 
+      density="compact" 
+      class="mt-5" 
+      variant="outlined" 
+      v-model="text"
+      append-inner-icon="fa-solid fa-magnifying-glass" 
+      height="5" 
+      @click:append-inner="searchBook(text)">
     </v-text-field>
     <v-spacer></v-spacer>
     <v-btn v-if="isShowUserBtn" icon="fa-solid fa-circle-user" @click.stop="userBar = !userBar"></v-btn>
@@ -155,7 +162,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { userInfo, isLogIn } from '@/script/user'
+import { userInfo, isLogIn, searchResults } from '@/script/user'
 import axios from 'axios';
 import router from '@/router';
 
@@ -167,7 +174,6 @@ let isShowUserBtn = ref(false);
 
 let isShowPassword = ref(false);
 let loginDialog = ref(false);
-let signupDialog = ref(false);
 let userName = ref(null);
 let userPassword = ref(null);
 let isShowLoginDone = ref(false);
@@ -178,6 +184,21 @@ let isShowRegisterFailed = ref(false);
 let isShowRegisterDone = ref(false);
 
 let details = ref(null)
+let text = ref("")
+const searchBook = async (target) => {
+  try {
+    const response = await axios.get(`api/book/search/${target}`)
+
+    searchResults.value = response.data.data;
+
+    router.push("/search")
+  }
+  catch(e) {
+
+  }
+  finally{
+  }
+}
 
 const login = async (name, password) => {
   if (name == null || password == null) {
@@ -257,6 +278,11 @@ watch(
     }
     else if (newRoute.matched.some(record => record.path === "/my_favs/:id")) {
       title.value = "urB00ks - 我的收藏"
+      isSubPage.value = true;
+      isShowUserBtn.value = false;
+    }
+    else if (newRoute.matched.some(record => record.path === "/search")) {
+      title.value = "urB00ks - 搜索结果"
       isSubPage.value = true;
       isShowUserBtn.value = false;
     }

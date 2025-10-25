@@ -3,7 +3,7 @@
   <TopBar/>
 
   <v-container>
-    <v-skeleton-loader v-if="isBookOnLoading" type="card-avatar, article, actions" :max-width="300" class="mx-auto" />
+    <v-skeleton-loader v-if="isBookOnLoading" color="white" type="card-avatar, article, actions" :max-width="300" class="mx-auto" />
 
     <v-row v-else>
       <v-col v-for="book in books" :key="book.id" cols="12" sm="6" md="4" lg="3">

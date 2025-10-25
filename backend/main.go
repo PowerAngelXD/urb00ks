@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var isDev = false
+var isDev = true
 
 func main() {
 	if isDev {
@@ -49,6 +49,7 @@ func main() {
 	r.GET("/api/book/:id", api.GetBookInfo())
 	r.GET("/api/user", api.GetUserInfo())
 	r.GET("/api/book/list", api.GetMultipleBookInfo())
+	r.GET("/api/book/search/:target", api.SearchBooks())
 	r.GET("/api/book/count", api.GetSize())
 	r.POST("/api/book/add", api.AddBook())
 	r.POST("/api/user/register", api.RegisterNewUser())
