@@ -133,6 +133,10 @@ npm install -g pnpm
 ```
 pnpm dev
 ```
+如果没有安装依赖，请：
+```
+npm install
+```
 ### Backend
 运行之前，请确保您的系统上存在 **mariadb**
 
