@@ -57,6 +57,31 @@ func GetUserInfo() gin.HandlerFunc {
 				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
 			}
 		}
+		if type_str == "favs" {
+			// 如果是favs type，那么必须用id访问
+			id, _ := strconv.ParseInt(content, 10, 64)
+			if service.Service.UserSv.IsUserExist(id) {
+				user, err := service.Service.UserSv.GetUserById(id)
+				if err != nil {
+					log.Println(err.Error())
+					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+				} else {
+					if password != user.Password {
+						c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
+					} else {
+						var books []model.BookInfo = make([]model.BookInfo, 0)
+						for _, book_id_str := range user.Favs {
+							book_id, _ := strconv.ParseInt(book_id_str, 10, 64)
+							book, _ := service.Service.LibSv.GetBookById(book_id)
+							books = append(books, book)
+						}
+						c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: books})
+					}
+				}
+			} else {
+				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
+			}
+		}
 	}
 }
 

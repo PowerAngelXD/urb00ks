@@ -2,7 +2,7 @@
   <meta charset="UTF-8">
   <TopBar/>
 
-  <v-container background-color="blue lighten-2">
+  <v-container>
     <v-skeleton-loader v-if="isBookOnLoading" type="card-avatar, article, actions" :max-width="300" class="mx-auto" />
 
     <v-row v-else>

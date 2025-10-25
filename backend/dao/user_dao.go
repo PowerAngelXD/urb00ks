@@ -158,8 +158,8 @@ func (ud *UserDao) AddFav(target int64, fav string) error {
 	ud.DB.First(&user, target)
 
 	if slices.Contains(user.Favs, fav) {
-		logger.DBLog("Occurred error: Cannot add a new favorite for the user")
-		return errors.New("cannot add a new favorite for the user")
+		logger.DBLog("Occurred error: Cannot add an existed favorite for the user")
+		return errors.New("cannot add an existed favorite for the user")
 	}
 
 	user.Favs = append(user.Favs, fav)

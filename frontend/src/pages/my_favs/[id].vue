@@ -30,24 +30,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { userInfo } from '@/script/user';
+import { onMounted, ref } from 'vue';
+import router from '@/router';
+import axios from 'axios';
 
 let isFavBooksOnLoading = ref(false)
+let favBooks = ref(null)
+
+const goToBookDetails = (id) => {
+  const response = axios.patch(`/api/book/update?target=${id}&type=update_views&content=add_one`)
+  router.push(`/book_info/${id}`)
+}
 
 const fetchFavBooks = async () => {
     try {
-        const response = await axios.get("/api/user")
-        existed_book_num.value += 10;
-        books.value = response.data.data;
-        console.log(books.value)
+        const response = await axios.get(`/api/user?type=favs&content=${userInfo.value.id}&password=${userInfo.value.password}`)
+        favBooks.value = response.data.data;
+        
         isBookListInitialized.value = true;
     }
     catch (e) {
         console.log("occurred error: " + e)
     }
     finally {
-        isBookOnLoading.value = false;
+        isFavBooksOnLoading.value = false;
     }
 }
+
+onMounted(async () => {
+    fetchFavBooks();
+})
 
 </script>

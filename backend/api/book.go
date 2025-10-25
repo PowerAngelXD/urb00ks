@@ -58,6 +58,13 @@ func GetMultipleBookInfo() gin.HandlerFunc {
 	}
 }
 
+// 搜索书本，并返回所有匹配的结果
+func SearchBooks() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+	}
+}
+
 // 获得书库内书的数量
 func GetSize() gin.HandlerFunc {
 	return func(c *gin.Context) {

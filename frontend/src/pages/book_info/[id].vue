@@ -22,27 +22,32 @@
                         <h3> rating: {{ book_info.rating }}</h3>
                     </v-row>
                     <v-row class="mt-7">
-                        <v-btn v-if="isLogIn && !isInFavs" prepend-icon="fa-solid fa-star" @click="isFaved = true">收藏</v-btn>
-                        <v-alert v-else-if="isInFavs" type="success" variant="tonal" max-width="400"> 已收藏 </v-alert>
-                        <v-label v-else>请登陆后才能进行该操作！</v-label>
+                        <v-btn v-if="isLogIn && !isInFavs && !isFav" prepend-icon="fa-solid fa-star" @click="collect()">收藏</v-btn>
+                        <v-alert v-else-if="isInFavs || isFav" type="success" variant="tonal" max-width="400"> 已收藏 </v-alert>
+                        <v-label v-else>收藏：请登陆后才能进行该操作！</v-label>
                     </v-row>
-                    <div v-if="!isJudged">
-                        <v-row class="mt-6">
-                            <h3> 您可以打分：</h3>
-                        </v-row>
-                        <v-row class="mt-9">
-                            <v-btn-toggle v-model="custom_rating" rounded="xl" border>
-                                <v-btn v-for="score in 5" @click="judgeBook(score)"> {{ score }} </v-btn>
-                            </v-btn-toggle>
-                        </v-row>
-                    </div>
-                    <div v-else>
-                        <v-row class="mt-6">
-                            <v-alert type="success" variant="tonal" max-width="400">
-                                您已成功评分
-                            </v-alert>
-                        </v-row>
-                    </div>
+                    <v-row class="mt-7" v-if="isLogIn">
+                        <div v-if="!isJudged">
+                            <v-row class="mt-6">
+                                <h3> 您可以打分：</h3>
+                            </v-row>
+                            <v-row class="mt-9">
+                                <v-btn-toggle v-model="custom_rating" rounded="xl" border>
+                                    <v-btn v-for="score in 5" @click="judgeBook(score)"> {{ score }} </v-btn>
+                                </v-btn-toggle>
+                            </v-row>
+                        </div>
+                        <div v-else>
+                            <v-row class="mt-6">
+                                <v-alert type="success" variant="tonal" max-width="400">
+                                    您已成功评分
+                                </v-alert>
+                            </v-row>
+                        </div>
+                    </v-row>
+                    <v-row v-else>
+                        <v-label>评分：请登陆后才能进行该操作！</v-label>
+                    </v-row>
                 </v-container>
             </v-col>
         </v-row>
@@ -61,7 +66,7 @@
 
 <script setup>
 import TopBar from '@/components/TopBar.vue';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { isLogIn, userInfo } from '@/script/user'
 import axios from 'axios';
@@ -73,15 +78,28 @@ const route = useRoute();
 const book_info = ref(null);
 
 const isInFavs = computed(() => {
-    const userFavs = userInfo.value?.favs || [];
-    const bookTitle = book_info.value?.title || '';
-
-    if (!Array.isArray(userFavs)) {
-        return false; 
+    if (!book_info.value || book_info.value.id === undefined) {
+        return false;
     }
-    console.log(userFavs)
-    return bookTitle && userFavs.includes(bookTitle);
+
+    const userFavs = userInfo.value?.favs || [];
+    const bookIdString = String(book_info.value.id); 
+
+    return userFavs.includes(bookIdString);
 })
+
+const collect = async () => {
+    try {
+        await axios.patch(`/api/user/update?target=${userInfo.value.id}&type=add_fav&content=${book_info.value.id}`);
+        userInfo.value.favs.push(String(book_info.value.id))
+        isFav.value = true;
+    }
+    catch(e) {
+        console.log(e)
+    }
+    finally {
+    }
+}
 
 const fetchBookDetails = async () => {
     try {
@@ -108,5 +126,19 @@ const judgeBook = async (score) => {
 
 onMounted(() => {
     fetchBookDetails();
+    console.log("check result: " + isInFavs.value)
 })
+
+watch(
+    () => isInFavs,
+    (result) => {
+        if (result.value) {
+            isFav.value = true;
+        }
+        else {
+            isFav.value = false;
+        }
+    },
+    {immediate: true}
+)
 </script>

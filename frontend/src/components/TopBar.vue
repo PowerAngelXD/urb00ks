@@ -119,12 +119,6 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="signupDialog">
-    <v-card>
-
-    </v-card>
-  </v-dialog>
-
   <v-navigation-drawer v-model="userBar" temporary location="right" color="blue-accent-2">
     <br></br>
     <v-list-item v-if="isLogIn" :title="userInfo.name"></v-list-item>
@@ -138,7 +132,7 @@
 
     <v-list v-if="isLogIn" density="compact" nav>
       <v-list-item prepend-icon="fa-solid fa-star" title="我的收藏" value="myFavs"
-        @click="router.push(`/Favs/${userInfo.id}`)"></v-list-item>
+        @click="router.push(`/my_favs/${userInfo.id}`)"></v-list-item>
       <v-list-item prepend-icon="fa-solid fa-gear" title="设置" value="settings"></v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -155,7 +149,7 @@
       prepend-icon="fa-solid fa-magnifying-glass" height="5">
     </v-text-field>
     <v-spacer></v-spacer>
-    <v-btn icon="fa-solid fa-circle-user" @click.stop="userBar = !userBar"></v-btn>
+    <v-btn v-if="isShowUserBtn" icon="fa-solid fa-circle-user" @click.stop="userBar = !userBar"></v-btn>
   </v-app-bar>
 </template>
 
@@ -169,6 +163,7 @@ let title = ref("urB00ks - 网上图书推荐");
 
 let isSubPage = ref(false);
 let userBar = ref(false);
+let isShowUserBtn = ref(false);
 
 let isShowPassword = ref(false);
 let loginDialog = ref(false);
@@ -253,10 +248,17 @@ watch(
   (newRoute) => {
     if (newRoute.path === "/") {
       isSubPage.value = false;
+      isShowUserBtn.value = true;
     }
     else if (newRoute.matched.some(record => record.path === "/book_info/:id")) {
       title.value = "urB00ks - 图书详情"
       isSubPage.value = true;
+      isShowUserBtn.value = false;
+    }
+    else if (newRoute.matched.some(record => record.path === "/my_favs/:id")) {
+      title.value = "urB00ks - 我的收藏"
+      isSubPage.value = true;
+      isShowUserBtn.value = false;
     }
     else {
       isSubPage.value = true;

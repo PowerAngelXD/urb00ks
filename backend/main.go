@@ -3,15 +3,44 @@ package main
 import (
 	"B00k/api"
 	"B00k/dao"
+	"B00k/logger"
 	"B00k/service"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
+var isDev = false
+
 func main() {
-	if err := dao.ConnectDB(); err != nil {
-		os.Exit(1)
+	if isDev {
+		logger.DBLog("Start connecting the database...")
+		db, err := gorm.Open(mysql.Open(dao.DevDSN), &gorm.Config{})
+
+		if err != nil {
+			logger.DBLog("Connect the database failed, details: " + err.Error())
+			panic("Connect the database failed, program stop...")
+		}
+
+		DB, err := db.DB()
+		if err != nil {
+			logger.DBLog("Get the basic database failed, details: " + err.Error())
+		}
+
+		logger.DBLog("Initializing the IdleTime And MaxOpen settings...")
+		DB.SetConnMaxIdleTime(time.Hour)
+		DB.SetMaxIdleConns(20)
+		DB.SetMaxOpenConns(100)
+
+		dao.OfficialDB = db
+		logger.DBLog("Everything was Done!")
+	} else {
+		if err := dao.ConnectDB(); err != nil {
+			os.Exit(1)
+		}
 	}
 	service.Service.Init()
 

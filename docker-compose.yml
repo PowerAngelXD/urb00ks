@@ -18,10 +18,10 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: ./frontend/Dockerfile # ⬅️ 修复：告诉 Docker 如何构建镜像
+      dockerfile: ./frontend/Dockerfile
     container_name: frontend
     ports:
-      - "8088:80"                      # ⬅️ 修复：重新添加端口映射
+      - "8088:80"
     depends_on:
       - backend
 

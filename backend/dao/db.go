@@ -12,6 +12,7 @@ import (
 
 var OfficialDB *gorm.DB
 var DSN string
+var DevDSN = "fzsgball:123456@tcp(localhost:3306)/official_book_library?charset=utf8mb4&parseTime=True&loc=Local"
 
 func ConnectDB() error {
 	DBHost := os.Getenv("DB_HOST")
