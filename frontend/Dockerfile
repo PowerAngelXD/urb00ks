@@ -6,6 +6,7 @@ COPY ./frontend/package*.json ./
 
 COPY ./frontend .
 
+RUN npm install --registry=https://registry.npmmirror.com/
 RUN rm -rf node_modules package-lock.json
 RUN npm install
 RUN chmod +x ./node_modules/.bin/*
