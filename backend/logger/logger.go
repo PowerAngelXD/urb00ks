@@ -17,6 +17,11 @@ func LibraryLog(content string) {
 	fmt.Println("[Library] [" + t.Format(formatTemplate) + "] " + content)
 }
 
+func ApiLog(content string) {
+	t := time.Now()
+	fmt.Println("[Api using] [" + t.Format(formatTemplate) + "] " + content)
+}
+
 func DBLog(content string) {
 	t := time.Now()
 	fmt.Println("[DataBase] [" + t.Format(formatTemplate) + "] " + content)
