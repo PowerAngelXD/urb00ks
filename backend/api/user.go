@@ -2,6 +2,7 @@ package api
 
 import (
 	"B00k/logger"
+	"B00k/middleware"
 	"B00k/model"
 	"B00k/service"
 	"log"
@@ -28,16 +29,16 @@ func GetUserInfo() gin.HandlerFunc {
 				user, err := service.Service.UserSv.GetUserById(id)
 				if err != nil {
 					log.Println(err.Error())
-					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+					c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
 				} else {
 					if password != user.Password {
-						c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
+						c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
 					} else {
-						c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+						c.JSON(http.StatusOK, model.ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
 					}
 				}
 			} else {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
 			}
 		}
 		if type_str == "name" {
@@ -45,16 +46,16 @@ func GetUserInfo() gin.HandlerFunc {
 				user, err := service.Service.UserSv.GetUser(content)
 				if err != nil {
 					log.Println(err.Error())
-					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+					c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
 				} else {
 					if password != user.Password {
-						c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
+						c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
 					} else {
-						c.JSON(http.StatusOK, ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
+						c.JSON(http.StatusOK, model.ReturnStruct[model.UserInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: user})
 					}
 				}
 			} else {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
 			}
 		}
 		if type_str == "favs" {
@@ -64,10 +65,10 @@ func GetUserInfo() gin.HandlerFunc {
 				user, err := service.Service.UserSv.GetUserById(id)
 				if err != nil {
 					log.Println(err.Error())
-					c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
+					c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed, details: \"" + err.Error() + "\"", Data: 1})
 				} else {
 					if password != user.Password {
-						c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
+						c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Get userinfo failed: password wrong", Data: 1})
 					} else {
 						var books []model.BookInfo = make([]model.BookInfo, 0)
 						for _, book_id_str := range user.Favs {
@@ -75,13 +76,75 @@ func GetUserInfo() gin.HandlerFunc {
 							book, _ := service.Service.LibSv.GetBookById(book_id)
 							books = append(books, book)
 						}
-						c.JSON(http.StatusOK, ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: books})
+						c.JSON(http.StatusOK, model.ReturnStruct[[]model.BookInfo]{Status: http.StatusOK, Msg: "Get userinfo successfully", Data: books})
 					}
 				}
 			} else {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot get an unknown user", Data: 1})
 			}
 		}
+	}
+}
+
+// 用户登录
+func UserLogin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		name := c.Query("name")
+		pswd := c.Query("pswd")
+
+		if !service.Service.UserSv.IsUserExistByName(name) {
+			logger.ApiLog("Occurred error: Cannot get an unknown user")
+			c.JSON(http.StatusBadRequest,
+				model.ReturnStruct[int]{
+					Status: http.StatusBadRequest,
+					Msg:    "Cannot get an unknown user",
+					Data:   1,
+				},
+			)
+		}
+
+		user, err := service.Service.UserSv.GetUser(name)
+		if err != nil {
+			logger.ApiLog("Occurred error: " + err.Error())
+			c.JSON(http.StatusBadRequest,
+				model.ReturnStruct[int]{
+					Status: http.StatusBadRequest,
+					Msg:    err.Error(),
+					Data:   1,
+				},
+			)
+		}
+
+		if user.Password != pswd {
+			logger.ApiLog("Occurred error: Wrong password!")
+			c.JSON(http.StatusBadRequest,
+				model.ReturnStruct[int]{
+					Status: http.StatusBadRequest,
+					Msg:    "Wrong password!",
+					Data:   1,
+				},
+			)
+		}
+
+		token, err := middleware.GenerateToken(user)
+		if err != nil {
+			logger.ApiLog("Occurred error: " + err.Error())
+			c.JSON(http.StatusBadRequest,
+				model.ReturnStruct[int]{
+					Status: http.StatusBadRequest,
+					Msg:    err.Error(),
+					Data:   1,
+				},
+			)
+		}
+
+		c.JSON(http.StatusOK,
+			model.ReturnStruct[string]{
+				Status: http.StatusOK,
+				Msg:    "Login Successfully",
+				Data:   token,
+			},
+		)
 	}
 }
 
@@ -96,9 +159,9 @@ func RegisterNewUser() gin.HandlerFunc {
 		result := service.Service.UserSv.AddUser(name, birth, pswd) // TODO: 之后考虑加密解密的事情
 
 		if result != nil {
-			c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Register user failed, details: " + result.Error(), Data: 1})
+			c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Register user failed, details: " + result.Error(), Data: 1})
 		} else {
-			c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Register successfully", Data: 0})
+			c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Register successfully", Data: 0})
 		}
 	}
 }
@@ -112,12 +175,12 @@ func DeleteUser() gin.HandlerFunc {
 		if service.Service.UserSv.IsUserExist(id) {
 			result := service.Service.UserSv.DB.Delete(id)
 			if result != nil {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Delete user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Delete user failed, details: " + result.Error(), Data: 1})
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Delete user successfully", Data: 0})
+				c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Delete user successfully", Data: 0})
 			}
 		} else {
-			c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot delete an unknown user", Data: 1})
+			c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot delete an unknown user", Data: 1})
 		}
 	}
 }
@@ -135,30 +198,30 @@ func UpdateUser() gin.HandlerFunc {
 		case "update_name":
 			result := service.Service.UserSv.UpdateName(id, content)
 			if result != nil {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
+				c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
 			}
 		case "update_pswd":
 			result := service.Service.UserSv.UpdatePassword(id, content)
 			if result != nil {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
+				c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
 			}
 		case "add_fav":
 			result := service.Service.UserSv.AddFav(id, content)
 			if result != nil {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
+				c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
 			}
 		case "delete_fav":
 			result := service.Service.UserSv.DeleteFav(id, content)
 			if result != nil {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
+				c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
 			}
 		case "update_all":
 			// e.g. /user/update?target=1&type=update_all&Xiaoming;123456;book1,book2,book3
@@ -168,9 +231,9 @@ func UpdateUser() gin.HandlerFunc {
 			result := service.Service.UserSv.UpdateAll(id, fields[0], fields[1], favs)
 
 			if result != nil {
-				c.JSON(http.StatusBadRequest, ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
+				c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Update user failed, details: " + result.Error(), Data: 1})
 			} else {
-				c.JSON(http.StatusOK, ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
+				c.JSON(http.StatusOK, model.ReturnStruct[int]{Status: http.StatusOK, Msg: "Successfully update user", Data: 0})
 			}
 		}
 	}
