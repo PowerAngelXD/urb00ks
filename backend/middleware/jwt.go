@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var Key = "SEVMTE9XT1JELU1PVEhFUkZVQ0tFUg=="
+var Key = []byte("SEVMTE9XT1JELU1PVEhFUkZVQ0tFUg==")
 
 type JWTStruct struct {
 	model.UserInfo
@@ -59,6 +59,8 @@ func JWTAuthHandler() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			c.Abort()
+			return
 		}
 
 		parts := strings.SplitN(authHead, " ", 2)
@@ -70,6 +72,8 @@ func JWTAuthHandler() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			c.Abort()
+			return
 		}
 
 		claims, err := ParseToken(parts[1])
@@ -81,6 +85,8 @@ func JWTAuthHandler() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			c.Abort()
+			return
 		}
 
 		c.Set("user", claims.UserInfo)
