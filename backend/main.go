@@ -4,6 +4,7 @@ import (
 	"B00k/api"
 	"B00k/dao"
 	"B00k/logger"
+	"B00k/middleware"
 	"B00k/service"
 	"os"
 	"time"
@@ -45,9 +46,12 @@ func main() {
 	service.Service.Init()
 
 	r := gin.Default()
+	apiGroup := r.Group("api")
+
+	apiGroup.Use(middleware.JWTAuthHandler())
 
 	r.GET("/api/book/:id", api.GetBookInfo())
-	r.GET("/api/user", api.GetUserInfo())
+	r.GET("/api/user/fetch", api.GetUserInfo())
 	r.GET("/api/book/list", api.GetMultipleBookInfo())
 	r.GET("/api/book/search/:target", api.SearchBooks())
 	r.GET("/api/book/count", api.GetSize())
