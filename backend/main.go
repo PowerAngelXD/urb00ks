@@ -44,24 +44,30 @@ func main() {
 		}
 	}
 	service.Service.Init()
-
 	r := gin.Default()
-	apiGroup := r.Group("api")
 
-	apiGroup.Use(middleware.JWTAuthHandler())
+	publicGroup := r.Group("/public")
 
-	r.GET("/api/book/:id", api.GetBookInfo())
-	r.GET("/api/user/fetch", api.GetUserInfo())
-	r.GET("/api/book/list", api.GetMultipleBookInfo())
-	r.GET("/api/book/search/:target", api.SearchBooks())
-	r.GET("/api/book/count", api.GetSize())
-	r.POST("/api/book/add", api.AddBook())
-	r.POST("/register", api.RegisterNewUser())
-	r.POST("/login", api.UserLogin())
-	r.DELETE("/api/book/remove/:id", api.DeleteBook())
-	r.DELETE("/api/user/remove/:id", api.DeleteUser())
-	r.PATCH("/api/book/update", api.UpdateBook())
-	r.PATCH("/api/user/update", api.UpdateUser())
+	publicGroup.POST("/register", api.RegisterNewUser())
+	publicGroup.GET("/login", api.UserLogin())
 
-	r.Run()
+	apiGroup := r.Group("/api")
+	userGroup := apiGroup.Group("/user")
+	bookGroup := apiGroup.Group("/book")
+
+	userGroup.Use(middleware.JWTAuthHandler())
+
+	userGroup.GET("/fetch", api.GetUserInfo())
+	userGroup.DELETE("/remove/:id", api.DeleteUser())
+	userGroup.PATCH("/update", api.UpdateUser())
+
+	bookGroup.GET("/:id", api.GetBookInfo())
+	bookGroup.GET("/list", api.GetMultipleBookInfo())
+	bookGroup.GET("/search/:target", api.SearchBooks())
+	bookGroup.GET("/count", api.GetSize())
+	bookGroup.POST("/add", api.AddBook())
+	bookGroup.DELETE("/remove/:id", api.DeleteBook())
+	bookGroup.PATCH("/update", api.UpdateBook())
+
+	r.Run(":8080")
 }
