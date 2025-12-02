@@ -8,6 +8,12 @@ type UserInfo struct {
 	Favs     []string `json:"favs" gorm:"type:text;serializer:json;column:favs;default:'[]'"`
 }
 
+type UserSession struct {
+	Id   int64    `json:"id"`
+	Name string   `json:"name"`
+	Favs []string `json:"favs"`
+}
+
 func (UserInfo) TableName() string {
 	return "user_list"
 }
