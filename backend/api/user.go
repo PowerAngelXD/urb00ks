@@ -1,6 +1,7 @@
 package api
 
 import (
+	"B00k/dao"
 	"B00k/logger"
 	"B00k/middleware"
 	"B00k/model"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -93,6 +95,24 @@ func UserLogin() gin.HandlerFunc {
 			)
 		}
 
+		userSession := model.UserSession{
+			Id:   user.Id,
+			Name: user.Name,
+			Favs: user.Favs,
+		}
+
+		err = dao.SaveSession(token, &userSession, time.Minute*1)
+		if err != nil {
+			logger.ApiLog("Occurred error: " + err.Error())
+			c.JSON(http.StatusBadRequest,
+				model.ReturnStruct[int]{
+					Status: http.StatusBadRequest,
+					Msg:    err.Error(),
+					Data:   1,
+				},
+			)
+		}
+
 		c.JSON(http.StatusOK,
 			model.ReturnStruct[string]{
 				Status: http.StatusOK,
@@ -111,7 +131,7 @@ func RegisterNewUser() gin.HandlerFunc {
 		birth := c.Query("birth")
 		pswd := c.Query("pswd")
 
-		result := service.Service.UserSv.AddUser(name, birth, pswd) // TODO: 之后考虑加密解密的事情
+		result := service.Service.UserSv.AddUser(name, birth, pswd)
 
 		if result != nil {
 			c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Register user failed, details: " + result.Error(), Data: 1})
@@ -137,6 +157,28 @@ func DeleteUser() gin.HandlerFunc {
 		} else {
 			c.JSON(http.StatusBadRequest, model.ReturnStruct[int]{Status: http.StatusBadRequest, Msg: "Cannot delete an unknown user", Data: 1})
 		}
+	}
+}
+
+// 用户登出
+func UserLogout() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenVal, _ := c.Get("user")
+
+		userToken := tokenVal.(string)
+
+		err := dao.DeleteSession(userToken)
+		if err != nil {
+			logger.ApiLog("Warning: Failed to delete session from RDB for token " + userToken + ": " + err.Error())
+		}
+
+		c.JSON(http.StatusOK,
+			model.ReturnStruct[int]{
+				Status: http.StatusOK,
+				Msg:    "Logout successfully",
+				Data:   0,
+			},
+		)
 	}
 }
 
