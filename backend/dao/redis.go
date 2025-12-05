@@ -13,9 +13,9 @@ import (
 var Rdb *redis.Client
 var RContext = context.Background()
 
-func Init() {
+func RdbInit() {
 	Rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6799",
+		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 		PoolSize: 10,
@@ -26,7 +26,7 @@ func Init() {
 
 	_, err := Rdb.Ping(ctx).Result()
 	if err != nil {
-		logger.DBLog("RDB Connection failed!")
+		logger.DBLog("RDB Connection failed! details: " + err.Error())
 		panic("")
 	}
 	logger.DBLog("RDB Connected successfully")
