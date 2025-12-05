@@ -63,6 +63,7 @@ func JWTAuthHandler() gin.HandlerFunc {
 			return
 		}
 
+		// Need: Bearer TOKEN
 		parts := strings.SplitN(authHead, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusBadRequest,
