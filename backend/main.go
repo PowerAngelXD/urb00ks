@@ -17,6 +17,7 @@ import (
 var isDev = true
 
 func main() {
+	dao.RdbInit()
 	if isDev {
 		logger.DBLog("Start connecting the database...")
 		db, err := gorm.Open(mysql.Open(dao.DevDSN), &gorm.Config{})
