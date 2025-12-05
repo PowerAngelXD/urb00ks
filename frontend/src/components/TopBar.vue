@@ -1,6 +1,5 @@
 <template>
   <v-alert closable icon="fa-solid fa-check" title="提示" text="登录成功！" color="green" v-model="isShowLoginDone">
-  {{ su }}
   </v-alert>
 
   <v-alert closable icon="fa-solid fa-triangle-exclamation" title="提示" text="登录失败！" color="red"
@@ -186,7 +185,8 @@ let isShowRegisterDone = ref(false);
 
 let details = ref(null)
 let text = ref("")
-let su = ref("")
+
+
 const searchBook = async (target) => {
   try {
     const response = await axios.get(`api/book/search/${target}`)
@@ -213,12 +213,14 @@ const login = async (name, password) => {
   }
 
   try {
-    const response = await axios.get(`/public/login?name=${name}&pswd=${password}`);
-    su.value = response.data.data;
+    const response = await axios.get(`/public/login?name=${name}&pswd=${password}`)
+    localStorage.setItem('auth_token', response.data.data)
+
+    const userResponse = await  axios.get(`/api/user/fetch`)
+    userInfo.value = userResponse.data.data;
     loginDialog.value = false;
     isShowLoginDone.value = true;
     isLogIn.value = true;
-    console.log(response.data.data)
   }
   catch (e) {
     console.log(`error: ${e.response.data.msg}`)
