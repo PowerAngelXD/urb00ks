@@ -58,6 +58,7 @@ func UserLogin() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			return
 		}
 
 		user, err := service.Service.UserSv.GetUser(name)
@@ -70,6 +71,7 @@ func UserLogin() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			return
 		}
 
 		if user.Password != pswd {
@@ -81,6 +83,7 @@ func UserLogin() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			return
 		}
 
 		token, err := middleware.GenerateToken(user)
@@ -93,6 +96,7 @@ func UserLogin() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			return
 		}
 
 		userSession := model.UserSession{
@@ -111,6 +115,7 @@ func UserLogin() gin.HandlerFunc {
 					Data:   1,
 				},
 			)
+			return
 		}
 
 		c.JSON(http.StatusOK,
